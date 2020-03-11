@@ -12,7 +12,7 @@ public class GreetingResourceTest {
     @Test
     public void testHelloEndpoint() {
         given()
-          .when().get("/C:/tools/cmder/vendor/git-for-windows/hello")
+          .when().get("/hello")
           .then()
              .statusCode(200)
              .body(is("hello"));

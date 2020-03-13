@@ -19,3 +19,12 @@ services:
     image: containous/whoami
     labels:
       - "traefik.http.routers.whoami.rule=PathPrefix(`/whoami`)"
+  application:
+    # A container that exposes an API to show its IP address
+    build:
+      context: ../../..
+      dockerfile: src/main/docker/Dockerfile.jvm
+    labels:
+      - "traefik.http.routers.application.rule=PathPrefix(`/application`)"
+    ports:
+      - "8090:8080"

@@ -13,6 +13,8 @@ compose_monitoring:
 
 clean:
 	docker-compose -f getting-started/src/main/docker/load-balancer.yml down; \
-	docker-compose -f getting-started/src/main/docker/monitoring.yml down;
+	docker-compose -f getting-started/src/main/docker/monitoring.yml down; \
+	rm -rf e2e/logs
 
-
+e2e:
+	bzt -o settings.artifacts-dir=e2e/logs e2e/hello-test.yml

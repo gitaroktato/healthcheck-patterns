@@ -13,17 +13,17 @@ global:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'application'
+  # - job_name: 'application'
 
-    # Override the global default and scrape targets from this job every 5 seconds.
-    scrape_interval: 5s
+  #   # Override the global default and scrape targets from this job every 5 seconds.
+  #   scrape_interval: 5s
 
-    # scheme defaults to 'http'.
-    metrics_path: /management/prometheus
-    static_configs:
-      - targets:
-          # On MacOS, replace localhost by host.docker.internal
-          - localhost:8080
+  #   # scheme defaults to 'http'.
+  #   metrics_path: /management/prometheus
+  #   static_configs:
+  #     - targets:
+  #         # On MacOS, replace localhost by host.docker.internal
+  #         - localhost:8080
   
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: 'traefik'

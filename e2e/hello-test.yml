@@ -1,0 +1,19 @@
+---
+execution:
+- concurrency: 3
+  hold-for: 15s
+  # ramp-up: 40s
+  scenario: hello-test
+scenarios:
+  hello-test:
+    requests:
+    - label: hello-get
+      method: GET
+      url: http://192.168.99.100/application/hello
+      assert:
+        - contains:
+          - "hello"
+          subject: body
+modules:
+  jmeter:
+    gui: false

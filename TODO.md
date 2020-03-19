@@ -1,5 +1,6 @@
 # Preparation
 [ ] Reliability / Availability monitoring
+[ ] e2e from Docker container for better portability
 
 # Healthcheck & traffic shaping
 [ ] Getting traffic to only healthy services

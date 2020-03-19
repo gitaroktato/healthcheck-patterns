@@ -1,7 +1,7 @@
 ---
 execution:
 - concurrency: 3
-  hold-for: 15s
+  hold-for: 5m
   # ramp-up: 40s
   scenario: hello-test
 scenarios:

@@ -1,13 +1,14 @@
-## Dynamic configuration
-[http.services]
-  [http.services.application.loadBalancer]
-    [[http.services.application.loadBalancer.servers]]
-      url = "http://application-1:8080/"
-    [[http.services.application.loadBalancer.servers]]
-      url = "http://application-2:8080/"
-      
-[http.routers]
-  [http.routers.application]
-    entryPoints = ["http"]
-    rule = "PathPrefix(`/application`)"
-    service = "application"
+[tcp]
+
+  [tcp.routers]
+    [tcp.routers.application]
+      entryPoints = ["http"]
+      rule = "HostSNI(`*`)"
+      service = "application-tcp"
+
+  [tcp.services]
+    [tcp.services.application-tcp.loadBalancer]
+      [[tcp.services.application-tcp.loadBalancer.servers]]
+        address = "application-1:8080"
+      [[tcp.services.application-tcp.loadBalancer.servers]]
+        address = "application-2:8080"

@@ -7,12 +7,12 @@ while [ 1 ]
 do
     rand=${container[$RANDOM % ${#container[@]}]}
     
-    sleep 60s
+    sleep 30s
     echo $(date)
     echo "Killing container ${rand}"
     docker stop ${rand}
 
-    sleep 5s
+    sleep 30s
     echo "Starting container ${rand}"
     docker start ${rand}
 done

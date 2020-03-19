@@ -6,6 +6,7 @@
 Retries
 
 # Patterns
+No healthcheck
 Passive healthcheck
 Deep healthcheck
 Shallow healthcheck

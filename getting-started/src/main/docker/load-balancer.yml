@@ -16,14 +16,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/routes.toml:/etc/traefik/routes.toml
   application-1:
-    build:
-      context: ../../..
-      dockerfile: src/main/docker/Dockerfile.jvm
+    image: quarkus/getting-started-jvm
     ports:
       - "8090:8080"
   application-2:
-    build:
-      context: ../../..
-      dockerfile: src/main/docker/Dockerfile.jvm
+    image: quarkus/getting-started-jvm
     ports:
       - "8091:8080"

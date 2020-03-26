@@ -1,22 +1,17 @@
 ## Dynamic configuration
 [http.services]
   [http.services.application.loadBalancer]
+    [http.services.application.loadBalancer.healthCheck]
+      path = "/application/health"
+      interval = "5s"
+      timeout = "2s"
     [[http.services.application.loadBalancer.servers]]
       url = "http://application-1:8080/"
     [[http.services.application.loadBalancer.servers]]
       url = "http://application-2:8080/"
-  [http.services.whoami.loadBalancer]
-    [[http.services.whoami.loadBalancer.servers]]
-      url = "http://whoami-1/"
-    [[http.services.whoami.loadBalancer.servers]]
-      url = "http://whoami-2/"
-
+      
 [http.routers]
   [http.routers.application]
     entryPoints = ["http"]
     rule = "PathPrefix(`/application`)"
     service = "application"
-  [http.routers.whoami]
-    entryPoints = ["http"]
-    rule = "PathPrefix(`/whoami`)"
-    service = "whoami"

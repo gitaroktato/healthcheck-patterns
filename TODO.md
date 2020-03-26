@@ -24,4 +24,5 @@
 # LHF
 [ ] e2e from Docker container for better portability
 [ ] Makefile more variables
+[ ] Rename service project
 [x] Build image first then start app

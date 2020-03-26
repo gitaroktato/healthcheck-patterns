@@ -22,7 +22,7 @@ clean:
 e2e:
 	bzt -o settings.artifacts-dir=e2e/logs e2e/hello-test.yml
 
-chaos-test:
+chaos:
 	bash -c	"docker ps -q --filter name=application | xargs chaos-testing/kill-container.sh &"; \
 	bzt -o settings.artifacts-dir=e2e/logs e2e/hello-test.yml
 

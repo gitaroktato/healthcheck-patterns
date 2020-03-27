@@ -15,16 +15,17 @@ N/A
 N/A
 
 *Alerting*
-+ Based on the ratio of failed HTTP requests indirectly
++ Based on the ratio of failed HTTP requests indirectly (passive)
 
 ## Shallow healthcheck
-*Restart*
-TBD
+*Restarts*
+*TBD*
 
 *Traffic shaping*
 + Guarantees that only healthy services will recieve traffic
 + Reduces failure rate becasue of downtime
 
+*TBD*
 - Won't help if dependent services are not operational
 
 *Alerting*

@@ -27,9 +27,8 @@ TBD
 
 - Won't help if dependent services are not operational
 
-
 *Alerting*
-TBD
++ Based on reported health check status
 
 ## Deep healthcheck
 

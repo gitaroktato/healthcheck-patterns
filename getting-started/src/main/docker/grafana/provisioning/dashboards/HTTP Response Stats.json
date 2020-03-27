@@ -153,7 +153,7 @@
       "folderId": null,
       "gridPos": {
         "h": 8,
-        "w": 10,
+        "w": 5,
         "x": 0,
         "y": 8
       },
@@ -176,6 +176,38 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "Alerts",
+      "transparent": true,
+      "type": "alertlist"
+    },
+    {
+      "dashboardFilter": "",
+      "dashboardTags": [],
+      "folderId": null,
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 5,
+        "y": 8
+      },
+      "id": 9,
+      "limit": 10,
+      "links": [],
+      "nameFilter": "",
+      "onlyAlertsOnDashboard": true,
+      "options": {},
+      "show": "changes",
+      "sortOrder": 1,
+      "stateFilter": [
+        "ok",
+        "no_data",
+        "paused",
+        "execution_error",
+        "alerting",
+        "pending"
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Alert History",
       "transparent": true,
       "type": "alertlist"
     },
@@ -266,7 +298,8 @@
           "fill": true,
           "line": true,
           "op": "gt",
-          "value": 0.03
+          "value": 0.03,
+          "yaxis": "left"
         }
       ],
       "timeFrom": null,
@@ -311,7 +344,7 @@
       }
     }
   ],
-  "refresh": "10s",
+  "refresh": false,
   "schemaVersion": 18,
   "style": "dark",
   "tags": [],
@@ -319,8 +352,8 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2020-03-27T12:29:34.245Z",
+    "to": "2020-03-27T12:35:10.779Z"
   },
   "timepicker": {
     "refresh_intervals": [

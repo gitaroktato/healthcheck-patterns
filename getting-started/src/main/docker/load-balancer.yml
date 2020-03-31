@@ -23,3 +23,7 @@ services:
     image: quarkus/getting-started-jvm
     ports:
       - "8091:8080"
+  mongo:
+    image: mongo:4.0
+    ports:
+      - "27017:27017"

@@ -2,6 +2,8 @@
 [x] Availability monitoring
 [x] Availability alerts
 [ ] Dependent services MongoDB?
+https://developer.mongodb.com/quickstart/java-setup-crud-operations
+
 [ ] Reliability curve?
 
 # Healthcheck & traffic shaping
@@ -9,6 +11,8 @@
 
 # Health & dependencies
 [ ] How dependencies affect healthcheck overall
+*TBD* - Look all the patterns.
+[ ] Healthcheck and retires
 [x] Pause / unpause dependent containers
 
 # Healthcheck & restarts

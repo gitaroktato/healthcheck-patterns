@@ -7,6 +7,9 @@ default: compose
 maven:
 	bash -c	"cd getting-started && ./mvnw package"
 
+dev:
+	bash -c	"cd getting-started && ./mvnw quarkus:dev"
+
 build: maven
 	docker build -f $(DOCKER_BASEDIR)/Dockerfile.jvm -t quarkus/getting-started-jvm getting-started
 

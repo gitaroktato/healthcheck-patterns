@@ -1,6 +1,7 @@
 package org.acme.quickstart;
 
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
@@ -18,22 +19,33 @@ public class MongoResource {
 
     @Inject
     private MongoClient mongoClient;
+    private static final String COLLECTION_ID = "hello";
+    private static final Document ID = new Document("_id",
+            new ObjectId("cafebabe0123456789012345"));
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getMongoObject() {
-        final Document id = new Document("_id",
-                new ObjectId("cafebabe0123456789012345"));
+        incrementCounter();
+        Document counter = getCounter();
+        return counter.toJson();
+    }
+
+    private Document getCounter() {
+        return getCollection().find(ID).first();
+    }
+
+    private void incrementCounter() {
         final Document updateOperation = new Document("$inc",
                 new Document("counter", 1));
-        mongoClient
-                .getDatabase("hello")
-                .getCollection("hello").updateOne(id, updateOperation,
+        getCollection().updateOne(ID, updateOperation,
                         new UpdateOptions().upsert(true));
-        Document hello = mongoClient.getDatabase("hello")
-                .getCollection("hello")
-                .find(id).first();
-        return hello.toJson();
+    }
+
+    private MongoCollection<Document> getCollection() {
+        return mongoClient
+                .getDatabase(COLLECTION_ID)
+                .getCollection(COLLECTION_ID);
     }
 
 }

@@ -6,6 +6,9 @@
 # Conflicting patterns
 Retries
 
+# Required patterns
+Timeouts
+
 # Patterns
 ## No healthcheck
 *Restart*
@@ -32,8 +35,19 @@ N/A
 + Based on reported health check status
 
 ## Deep healthcheck
+*Restart*
++ Might help if timeout pattern is not applied.
+
+*Traffic shaping*
+
+*Alerting*
 
 ## Passive healthcheck
+*Restart*
+
+*Traffic shaping*
+
+*Alerting*
 
 # Technical Notes
 Traefik does not provide TCP healthchecks?

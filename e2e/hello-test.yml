@@ -14,6 +14,15 @@ scenarios:
         - contains:
           - "hello"
           subject: body
+  mongo-test:
+    requests:
+    - label: mongo-get
+      method: GET
+      url: http://192.168.99.100/application/mongo
+      assert:
+        - contains:
+          - "counter"
+          subject: body
 modules:
   jmeter:
     gui: false

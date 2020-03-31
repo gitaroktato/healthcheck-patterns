@@ -4,8 +4,6 @@
 [x] Dependent services MongoDB?
 https://developer.mongodb.com/quickstart/java-setup-crud-operations
 
-[ ] Reliability curve?
-
 # Healthcheck & traffic shaping
 [x] Getting traffic to only healthy services
 
@@ -44,3 +42,6 @@ curl localhost:9323/metrics
 [ ] Makefile more variables
 [ ] Rename service project
 [x] Build image first then start app
+
+# Ideation
+[ ] Full patterns map

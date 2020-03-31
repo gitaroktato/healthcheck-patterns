@@ -6,6 +6,9 @@
 # Conflicting patterns
 Retries
 
+# Required patterns
+Timeouts
+
 # Patterns
 ## No healthcheck
 *Restart*
@@ -15,11 +18,11 @@ N/A
 N/A
 
 *Alerting*
-+ Based on the ratio of failed HTTP requests indirectly
++ Based on the ratio of failed HTTP requests indirectly (passive)
 
 ## Shallow healthcheck
-*Restart*
-TBD
+*Restarts*
+*TBD*
 
 *Traffic shaping*
 + Guarantees that only healthy services will recieve traffic
@@ -28,14 +31,29 @@ TBD
 - Won't help if dependent services are not operational
 
 *Alerting*
+*TBD*
 + Based on reported health check status
+*TBD*
++ Based on the ratio of failed HTTP requests indirectly (passive)
 
 ## Deep healthcheck
+*Restart*
++ Might help if timeout pattern is not applied.
+
+*Traffic shaping*
+
+*Alerting*
 
 ## Passive healthcheck
+*Restart*
+
+*Traffic shaping*
+
+*Alerting*
 
 # Technical Notes
 Traefik does not provide TCP healthchecks?
+Traefik does not provide health and service status metrics.
 
 # References
 https://docs.traefik.io/getting-started/quick-start/

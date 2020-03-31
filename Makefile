@@ -28,7 +28,7 @@ e2e:
 	bzt -o settings.artifacts-dir=e2e/logs -o execution.0.scenario=$(SCENARIO) e2e/hello-test.yml
 
 chaos:
-	bash -c	"docker ps -q --filter name=application | xargs chaos-testing/kill-container.sh &"; \
+	bash -c	"docker ps -q --filter label=killable | xargs chaos-testing/kill-container.sh &"; \
 	bzt -o settings.artifacts-dir=e2e/logs -o execution.0.scenario=$(SCENARIO) e2e/hello-test.yml
 
 restart: clean default

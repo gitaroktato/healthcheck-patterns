@@ -28,11 +28,13 @@ N/A
 + Guarantees that only healthy services will recieve traffic
 + Reduces failure rate becasue of downtime
 
-*TBD*
 - Won't help if dependent services are not operational
 
 *Alerting*
+*TBD*
 + Based on reported health check status
+*TBD*
++ Based on the ratio of failed HTTP requests indirectly (passive)
 
 ## Deep healthcheck
 *Restart*

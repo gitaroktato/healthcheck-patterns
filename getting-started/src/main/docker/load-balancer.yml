@@ -19,7 +19,17 @@ services:
     image: quarkus/getting-started-jvm
     ports:
       - "8090:8080"
+    labels:
+      killable: true
   application-2:
     image: quarkus/getting-started-jvm
     ports:
       - "8091:8080"
+    labels:
+      killable: true
+  mongo:
+    image: mongo:4.0
+    ports:
+      - "27017:27017"
+    labels:
+      killable: true

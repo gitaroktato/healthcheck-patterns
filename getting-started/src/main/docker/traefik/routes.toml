@@ -1,10 +1,10 @@
 ## Dynamic configuration
 [http.services]
   [http.services.application.loadBalancer]
-#    [http.services.application.loadBalancer.healthCheck]
-#      path = "/application/health"
-#      interval = "5s"
-#      timeout = "2s"
+   [http.services.application.loadBalancer.healthCheck]
+     path = "/application/health"
+     interval = "5s"
+     timeout = "2s"
     [[http.services.application.loadBalancer.servers]]
       url = "http://application-1:8080/"
     [[http.services.application.loadBalancer.servers]]

@@ -1,7 +1,7 @@
 # Preparation
 [x] Availability monitoring
 [x] Availability alerts
-[ ] Dependent services MongoDB?
+[x] Dependent services MongoDB?
 https://developer.mongodb.com/quickstart/java-setup-crud-operations
 
 [ ] Reliability curve?

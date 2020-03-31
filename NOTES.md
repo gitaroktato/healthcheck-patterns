@@ -37,6 +37,7 @@ N/A
 
 # Technical Notes
 Traefik does not provide TCP healthchecks?
+Traefik does not provide health and service status metrics.
 
 # References
 https://docs.traefik.io/getting-started/quick-start/

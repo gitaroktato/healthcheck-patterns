@@ -7,6 +7,10 @@ https://developer.mongodb.com/quickstart/java-setup-crud-operations
 # Healthcheck & traffic shaping
 [x] Getting traffic to only healthy services
 
+# Healthcheck alerts
+[x] Variable to Prometheus time window
+[ ] Alerts for passive TCP health!
+
 # Health & dependencies
 [ ] How dependencies affect healthcheck overall
 *TBD* - Look all the patterns.
@@ -34,14 +38,15 @@ curl localhost:9323/metrics
 # Research 
 [x] Prometheus docs (Katacoda?)
 [ ] Envoy docs (Katacoda?)
+https://www.envoyproxy.io/docs/envoy/v1.13.1/start/sandboxes/front_proxy#running-the-sandbox
 [ ] Watch patterns resiliency
 [ ] Insert Envoy with metrics for better observability
+
+# Ideation
+[ ] Full patterns map
 
 # LHF
 [ ] e2e from Docker container for better portability
 [ ] Makefile more variables
 [ ] Rename service project
 [x] Build image first then start app
-
-# Ideation
-[ ] Full patterns map

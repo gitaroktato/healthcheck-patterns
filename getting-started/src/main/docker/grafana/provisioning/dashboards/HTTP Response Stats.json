@@ -124,7 +124,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(rate(traefik_entrypoint_requests_total{code=~\"5..\"}[5m])) / sum(rate(traefik_entrypoint_requests_total[5m]))",
+          "expr": "sum(rate(traefik_entrypoint_requests_total{code=~\"5..\"}[$interval])) / sum(rate(traefik_entrypoint_requests_total[$interval]))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "failure rate",
@@ -344,16 +344,49 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "5s",
   "schemaVersion": 18,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "text": "1m",
+          "value": "1m"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": false,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "10m",
+            "value": "10m"
+          }
+        ],
+        "query": "1m,5m,10m",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
   },
   "time": {
-    "from": "2020-03-27T12:29:34.245Z",
-    "to": "2020-03-27T12:35:10.779Z"
+    "from": "now-15m",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [

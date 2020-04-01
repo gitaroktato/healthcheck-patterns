@@ -1,0 +1,18 @@
+[api]
+  insecure = true
+  dashboard = true
+
+[providers]
+  [providers.file]
+    filename = "/etc/traefik/routes.toml"
+
+[metrics]
+  [metrics.prometheus]
+    addEntryPointsLabels = true
+    addServicesLabels = true
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+  [entryPoints.tcp]
+    address = ":44"

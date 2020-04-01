@@ -37,3 +37,15 @@ scrape_configs:
       - targets:
           # On MacOS, replace localhost by host.docker.internal
           - 192.168.99.100:8080
+          
+  - job_name: 'envoy'
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+
+    # scheme defaults to 'http'.
+    metrics_path: /stats/prometheus
+    static_configs:
+      - targets:
+          # On MacOS, replace localhost by host.docker.internal
+          - 192.168.99.100:9901

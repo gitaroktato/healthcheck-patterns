@@ -15,6 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
+  "iteration": 1585743506946,
   "links": [],
   "panels": [
     {
@@ -52,7 +53,7 @@
         {
           "expr": "traefik_entrypoint_requests_total{entrypoint=\"http\"}",
           "format": "time_series",
-          "instant": true,
+          "instant": false,
           "intervalFactor": 1,
           "legendFormat": "{{code}}",
           "refId": "A"
@@ -63,7 +64,7 @@
       "title": "HTTP response distribution",
       "transparent": true,
       "type": "grafana-piechart-panel",
-      "valueName": "max"
+      "valueName": "total"
     },
     {
       "cacheTimeout": null,
@@ -239,7 +240,7 @@
           }
         ],
         "executionErrorState": "alerting",
-        "for": "5m",
+        "for": "1m",
         "frequency": "1m",
         "handler": 1,
         "message": "Failure Rate Alert",
@@ -284,7 +285,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(traefik_entrypoint_requests_total{code=~\"5..\"}[5m])) / sum(rate(traefik_entrypoint_requests_total[5m]))",
+          "expr": "sum(rate(traefik_entrypoint_requests_total{code=~\"5..\"}[1m])) / sum(rate(traefik_entrypoint_requests_total[1m]))",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -298,8 +299,7 @@
           "fill": true,
           "line": true,
           "op": "gt",
-          "value": 0.03,
-          "yaxis": "left"
+          "value": 0.03
         }
       ],
       "timeFrom": null,
@@ -344,7 +344,7 @@
       }
     }
   ],
-  "refresh": "5s",
+  "refresh": "10s",
   "schemaVersion": 18,
   "style": "dark",
   "tags": [],
@@ -414,7 +414,7 @@
     ]
   },
   "timezone": "",
-  "title": "HTTP Response Stats",
+  "title": "Traefik - HTTP Response Stats",
   "uid": "i5w_vsXZk",
-  "version": 1
+  "version": 3
 }

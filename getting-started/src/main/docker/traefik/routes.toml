@@ -1,4 +1,3 @@
-## Dynamic configuration
 [http.services]
   [http.services.application.loadBalancer]
    [http.services.application.loadBalancer.healthCheck]
@@ -14,4 +13,18 @@
   [http.routers.application]
     entryPoints = ["http"]
     rule = "PathPrefix(`/application`)"
+    service = "application"
+
+[tcp.services]
+  [tcp.services.application.loadBalancer]
+    [[tcp.services.application.loadBalancer.servers]]
+      address = "application-1:8080"
+    [[tcp.services.application.loadBalancer.servers]]
+      address = "application-2:8080"
+
+[tcp.routers]
+  [tcp.routers.application]
+    entryPoints = ["tcp"]
+    # By default, routers listen to every entrypoints
+    rule = "HostSNI(`*`)"
     service = "application"

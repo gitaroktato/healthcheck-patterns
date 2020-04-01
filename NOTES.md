@@ -19,6 +19,8 @@ N/A
 
 *Alerting*
 + Based on the ratio of failed HTTP requests indirectly (passive)
++ Works for TCP as well!
+- *DELAYING* if the rate drops because a dependent service timing out
 
 ## Shallow healthcheck
 *Restarts*
@@ -33,8 +35,11 @@ N/A
 *Alerting*
 *TBD*
 + Based on reported health check status
+- Not working if a dependent service is not operational
+
 *TBD*
 + Based on the ratio of failed HTTP requests indirectly (passive)
+- *DELAYING* if the rate drops because a dependent service timing out
 
 ## Deep healthcheck
 *Restart*

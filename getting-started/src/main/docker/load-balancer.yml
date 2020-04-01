@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  reverse-proxy:
+  traefik:
     # The official v2 Traefik docker image
     image: traefik:v2.1
     ports:
@@ -16,6 +16,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/traefik.toml:/etc/traefik/traefik.toml:ro
       - ./traefik/routes.toml:/etc/traefik/routes.toml:ro
+  envoy:
+    # The official v2 Traefik docker image
+    image: envoyproxy/envoy:v1.13.1
+    ports:
+      # The HTTP port
+      - "10000:10000"
+      # The Admin UI
+      - "9901:9901"
+    volumes:
+      - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
   application-1:
     image: quarkus/getting-started-jvm
     ports:
@@ -32,5 +42,5 @@ services:
     image: mongo:4.0
     ports:
       - "27017:27017"
-    labels:
+    # labels:
       # killable: true

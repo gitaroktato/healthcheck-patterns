@@ -23,6 +23,15 @@ scenarios:
         - contains:
           - "counter"
           subject: body
+  envoy-hello-test:
+    requests:
+    - label: hello-get
+      method: GET
+      url: http://192.168.99.100:10000/application/hello
+      assert:
+        - contains:
+          - "hello"
+          subject: body
 modules:
   jmeter:
     gui: false

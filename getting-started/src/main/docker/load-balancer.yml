@@ -4,17 +4,18 @@ services:
   reverse-proxy:
     # The official v2 Traefik docker image
     image: traefik:v2.1
-    # Enables the web UI and tells Traefik to listen to docker
-    command: --api.insecure=true --providers.file.filename=/etc/traefik/routes.toml --metrics.prometheus=true
     ports:
       # The HTTP port
       - "80:80"
+      # The TCP port
+      - "44:44"
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
     volumes:
       # So that Traefik can listen to the Docker events
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./traefik/routes.toml:/etc/traefik/routes.toml
+      - ./traefik/traefik.toml:/etc/traefik/traefik.toml:ro
+      - ./traefik/routes.toml:/etc/traefik/routes.toml:ro
   application-1:
     image: quarkus/getting-started-jvm
     ports:
@@ -32,4 +33,4 @@ services:
     ports:
       - "27017:27017"
     labels:
-      killable: true
+      # killable: true

@@ -13,6 +13,7 @@ do
     docker stop ${rand}
 
     sleep 30s
+    echo $(date)
     echo "Starting container ${rand}"
     docker start ${rand}
 done

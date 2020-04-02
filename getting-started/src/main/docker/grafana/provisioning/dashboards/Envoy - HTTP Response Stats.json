@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1585743722930,
+  "iteration": 1585831754498,
   "links": [],
   "panels": [
     {
@@ -220,6 +220,157 @@
           {
             "evaluator": {
               "params": [
+                1
+              ],
+              "type": "lt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "D",
+                "1m",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "last"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "for": "15s",
+        "frequency": "15s",
+        "handler": 1,
+        "name": "Envoy - Cluster Health Alert",
+        "noDataState": "no_data",
+        "notifications": []
+      },
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 11,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(envoy_cluster_health_check_failure{envoy_cluster_name=\"application\"}[$interval])",
+          "format": "time_series",
+          "hide": true,
+          "intervalFactor": 1,
+          "legendFormat": "health failure rate",
+          "refId": "A"
+        },
+        {
+          "expr": "envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}",
+          "format": "time_series",
+          "hide": true,
+          "intervalFactor": 1,
+          "legendFormat": "healthy instances",
+          "refId": "B"
+        },
+        {
+          "expr": "max_over_time(envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}[1d])",
+          "format": "time_series",
+          "hide": true,
+          "intervalFactor": 1,
+          "legendFormat": "maximum instances",
+          "refId": "C"
+        },
+        {
+          "expr": "envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"} / max_over_time(envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}[1d])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "healthy ratio",
+          "refId": "D"
+        }
+      ],
+      "thresholds": [
+        {
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "lt",
+          "value": 1
+        }
+      ],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cluster Health",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
                 0.05
               ],
               "type": "gt"
@@ -364,6 +515,21 @@
         "name": "interval",
         "options": [
           {
+            "selected": false,
+            "text": "5s",
+            "value": "5s"
+          },
+          {
+            "selected": false,
+            "text": "10s",
+            "value": "10s"
+          },
+          {
+            "selected": false,
+            "text": "30s",
+            "value": "30s"
+          },
+          {
             "selected": true,
             "text": "1m",
             "value": "1m"
@@ -379,7 +545,7 @@
             "value": "10m"
           }
         ],
-        "query": "1m,5m,10m",
+        "query": "5s,10s,30s,1m,5m,10m",
         "skipUrlSync": false,
         "type": "custom"
       }
@@ -417,5 +583,5 @@
   "timezone": "",
   "title": "Envoy - HTTP Response Stats",
   "uid": "-uqu1CrZk",
-  "version": 7
+  "version": 2
 }

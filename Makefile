@@ -1,6 +1,6 @@
 DOCKER_BASEDIR = getting-started/src/main/docker
-# Values are: hello-test and mongo-test
-SCENARIO = mongo-test
+# Values are: hello-test, mongo-test, envoy-hello-test and envoy-mongo-test
+SCENARIO = envoy-hello-test
 
 .PHONY: e2e
 

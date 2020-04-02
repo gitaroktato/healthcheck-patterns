@@ -1,15 +1,19 @@
 # Preparation
-[x] Availability monitoring
+[x] Availability monitoring - Traefik
+[ ] Availability monitoring - Envoy
 [x] Availability alerts
+[ ] Availability alerts - Envoy
 [x] Dependent services MongoDB?
-https://developer.mongodb.com/quickstart/java-setup-crud-operations
 
 # Healthcheck & traffic shaping
 [x] Getting traffic to only healthy services
+[ ] Outlier detection
+https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/outlier#arch-overview-outlier-detection
 
 # Healthcheck alerts
 [x] Variable to Prometheus time window
 [ ] Alerts for passive TCP health!
+https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/health_checking#arch-overview-health-checking
 
 # Health & dependencies
 [ ] How dependencies affect healthcheck overall
@@ -37,10 +41,10 @@ curl localhost:9323/metrics
 
 # Research 
 [x] Prometheus docs (Katacoda?)
-[ ] Envoy docs (Katacoda?)
+[x] Envoy docs (Katacoda?)
 https://www.envoyproxy.io/docs/envoy/v1.13.1/start/sandboxes/front_proxy#running-the-sandbox
 [ ] Watch patterns resiliency
-[ ] Insert Envoy with metrics for better observability
+[x] Insert Envoy with metrics for better observability
 
 # Ideation
 [ ] Full patterns map

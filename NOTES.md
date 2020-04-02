@@ -4,10 +4,12 @@
 - Alerting
 
 # Conflicting patterns
-Retries
+Retries?
+- Not necessary, healtcheck can retry itself if you give it a lease period.
 
 # Required patterns
 Timeouts
+- Either in application or at LB level
 
 # Patterns
 ## No healthcheck
@@ -25,6 +27,8 @@ N/A
 ## Shallow healthcheck
 *Restarts*
 *TBD*
++ Helps if application has: memory, thread leak and deadlocks
+- Not helps if dependent service becomes unavailable
 
 *Traffic shaping*
 + Guarantees that only healthy services will recieve traffic
@@ -33,11 +37,9 @@ N/A
 - Won't help if dependent services are not operational
 
 *Alerting*
-*TBD*
 + Based on reported health check status
 - Not working if a dependent service is not operational
 
-*TBD*
 + Based on the ratio of failed HTTP requests indirectly (passive)
 - *DELAYING* if the rate drops because a dependent service timing out
 
@@ -46,6 +48,7 @@ N/A
 + Might help if timeout pattern is not applied.
 
 *Traffic shaping*
+- _"If the DB server has become a single point of failure (SPOF) and has gone down, there may be an overreaction that can take all of the servers down, depending on how the back-end server check program is written."_
 
 *Alerting*
 

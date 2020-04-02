@@ -12,7 +12,7 @@ do
     echo "Killing container ${rand}"
     docker stop ${rand}
 
-    sleep 30s
+    sleep 60s
     echo $(date)
     echo "Starting container ${rand}"
     docker start ${rand}

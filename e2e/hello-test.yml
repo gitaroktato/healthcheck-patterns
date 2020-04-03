@@ -1,4 +1,8 @@
 ---
+settings:
+  env:
+    BASE_URL: 192.168.99.100
+
 execution:
 - concurrency: 3
   hold-for: 5m
@@ -9,7 +13,7 @@ scenarios:
     requests:
     - label: hello-get
       method: GET
-      url: http://192.168.99.100/application/hello
+      url: http://${BASE_URL}/application/hello
       assert:
         - contains:
           - "hello"
@@ -18,19 +22,10 @@ scenarios:
     requests:
     - label: mongo-get
       method: GET
-      url: http://192.168.99.100/application/mongo
+      url: http://${BASE_URL}/application/mongo
       assert:
         - contains:
           - "counter"
-          subject: body
-  envoy-hello-test:
-    requests:
-    - label: hello-get
-      method: GET
-      url: http://192.168.99.100:10000/application/hello
-      assert:
-        - contains:
-          - "hello"
           subject: body
 modules:
   jmeter:

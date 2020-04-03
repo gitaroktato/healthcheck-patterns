@@ -2,6 +2,8 @@
 - Restart
 - Traffic shaping
 - Alerting
+- Scaling?
+- Deployments?
 
 # Conflicting patterns
 Retries?
@@ -27,8 +29,9 @@ N/A
 ## Shallow healthcheck
 *Restarts*
 *TBD*
-+ Helps if application has: memory, thread leak and deadlocks
-- Not helps if dependent service becomes unavailable
++ Helps if application has: memory, thread leak
+- Won't help if dependent service becomes unavailable
+- Won't help in case of deadlocks
 
 *Traffic shaping*
 + Guarantees that only healthy services will recieve traffic
@@ -46,6 +49,7 @@ N/A
 ## Deep healthcheck
 *Restart*
 + Might help if timeout pattern is not applied.
++ Might help in case of deadlocks, if we probe the system with synthetic requests.
 
 *Traffic shaping*
 - _"If the DB server has become a single point of failure (SPOF) and has gone down, there may be an overreaction that can take all of the servers down, depending on how the back-end server check program is written."_

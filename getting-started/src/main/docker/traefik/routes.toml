@@ -1,7 +1,8 @@
 [http.services]
   [http.services.application.loadBalancer]
    [http.services.application.loadBalancer.healthCheck]
-     path = "/application/health"
+     path = "/application/health/ready"
+    #  path = "/application/health/live"
      interval = "5s"
      timeout = "2s"
     [[http.services.application.loadBalancer.servers]]

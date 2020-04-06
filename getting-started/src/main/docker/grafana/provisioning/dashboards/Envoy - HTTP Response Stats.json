@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1585831754498,
+  "iteration": 1586154142669,
   "links": [],
   "panels": [
     {
@@ -91,7 +91,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 13,
+        "w": 6,
         "x": 11,
         "y": 0
       },
@@ -149,6 +149,158 @@
         }
       ],
       "valueName": "current"
+    },
+    {
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                1
+              ],
+              "type": "lt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "D",
+                "1m",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "last"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "for": "15s",
+        "frequency": "15s",
+        "handler": 1,
+        "name": "Envoy - Cluster Health Alert",
+        "noDataState": "no_data",
+        "notifications": []
+      },
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "gridPos": {
+        "h": 8,
+        "w": 7,
+        "x": 17,
+        "y": 0
+      },
+      "id": 11,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {},
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "rate(envoy_cluster_health_check_failure{envoy_cluster_name=\"application\"}[$interval])",
+          "format": "time_series",
+          "hide": true,
+          "intervalFactor": 1,
+          "legendFormat": "health failure rate",
+          "refId": "A"
+        },
+        {
+          "expr": "envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}",
+          "format": "time_series",
+          "hide": true,
+          "intervalFactor": 1,
+          "legendFormat": "healthy instances",
+          "refId": "B"
+        },
+        {
+          "expr": "max_over_time(envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}[1d])",
+          "format": "time_series",
+          "hide": true,
+          "intervalFactor": 1,
+          "legendFormat": "maximum instances",
+          "refId": "C"
+        },
+        {
+          "expr": "envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"} / max_over_time(envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}[1d])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "healthy ratio",
+          "refId": "D"
+        }
+      ],
+      "thresholds": [
+        {
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "lt",
+          "value": 1,
+          "yaxis": "left"
+        }
+      ],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Cluster Health Alert",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     },
     {
       "dashboardFilter": "",
@@ -220,32 +372,32 @@
           {
             "evaluator": {
               "params": [
-                1
+                0.1
               ],
-              "type": "lt"
+              "type": "gt"
             },
             "operator": {
               "type": "and"
             },
             "query": {
               "params": [
-                "D",
-                "1m",
+                "A",
+                "15s",
                 "now"
               ]
             },
             "reducer": {
               "params": [],
-              "type": "last"
+              "type": "max"
             },
             "type": "query"
           }
         ],
         "executionErrorState": "alerting",
-        "for": "15s",
+        "for": "5s",
         "frequency": "15s",
         "handler": 1,
-        "name": "Envoy - Cluster Health Alert",
+        "name": "Envoy - Active Ejections Alert",
         "noDataState": "no_data",
         "notifications": []
       },
@@ -255,12 +407,12 @@
       "dashes": false,
       "fill": 1,
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
+        "h": 4,
+        "w": 13,
+        "x": 11,
         "y": 8
       },
-      "id": 11,
+      "id": 13,
       "legend": {
         "avg": false,
         "current": false,
@@ -285,35 +437,10 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "rate(envoy_cluster_health_check_failure{envoy_cluster_name=\"application\"}[$interval])",
+          "expr": "envoy_cluster_outlier_detection_ejections_active{envoy_cluster_name=\"application\"} / max_over_time(envoy_cluster_membership_total{envoy_cluster_name=\"application\"}[1d])",
           "format": "time_series",
-          "hide": true,
           "intervalFactor": 1,
-          "legendFormat": "health failure rate",
           "refId": "A"
-        },
-        {
-          "expr": "envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}",
-          "format": "time_series",
-          "hide": true,
-          "intervalFactor": 1,
-          "legendFormat": "healthy instances",
-          "refId": "B"
-        },
-        {
-          "expr": "max_over_time(envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}[1d])",
-          "format": "time_series",
-          "hide": true,
-          "intervalFactor": 1,
-          "legendFormat": "maximum instances",
-          "refId": "C"
-        },
-        {
-          "expr": "envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"} / max_over_time(envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}[1d])",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "legendFormat": "healthy ratio",
-          "refId": "D"
         }
       ],
       "thresholds": [
@@ -321,14 +448,14 @@
           "colorMode": "critical",
           "fill": true,
           "line": true,
-          "op": "lt",
-          "value": 1
+          "op": "gt",
+          "value": 0.1
         }
       ],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Cluster Health",
+      "title": "Outlier Detection - Active Ejections",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -496,7 +623,7 @@
       }
     }
   ],
-  "refresh": "10s",
+  "refresh": "5s",
   "schemaVersion": 18,
   "style": "dark",
   "tags": [],
@@ -583,5 +710,5 @@
   "timezone": "",
   "title": "Envoy - HTTP Response Stats",
   "uid": "-uqu1CrZk",
-  "version": 2
+  "version": 1
 }

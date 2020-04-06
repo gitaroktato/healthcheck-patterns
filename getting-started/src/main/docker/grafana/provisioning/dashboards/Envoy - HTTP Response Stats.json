@@ -15,7 +15,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1586154142669,
+  "iteration": 1586156508506,
   "links": [],
   "panels": [
     {
@@ -156,7 +156,7 @@
           {
             "evaluator": {
               "params": [
-                1
+                0.8
               ],
               "type": "lt"
             },
@@ -245,7 +245,7 @@
           "refId": "C"
         },
         {
-          "expr": "envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"} / max_over_time(envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"}[1d])",
+          "expr": "envoy_cluster_health_check_healthy{envoy_cluster_name=\"application\"} / max_over_time(envoy_cluster_membership_total{envoy_cluster_name=\"application\"}[1d])",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "healthy ratio",
@@ -258,8 +258,7 @@
           "fill": true,
           "line": true,
           "op": "lt",
-          "value": 1,
-          "yaxis": "left"
+          "value": 0.8
         }
       ],
       "timeFrom": null,

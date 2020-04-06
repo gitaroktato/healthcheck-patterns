@@ -1,8 +1,8 @@
 # Preparation
 [x] Availability monitoring - Traefik
-[ ] Availability monitoring - Envoy
+[x] Availability monitoring - Envoy
 [x] Availability alerts
-[ ] Availability alerts - Envoy
+[x] Availability alerts - Envoy
 [x] Dependent services MongoDB?
 
 # Healthcheck & traffic shaping
@@ -12,13 +12,13 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/outlie
 
 # Healthcheck alerts
 [x] Variable to Prometheus time window
-[ ] Alerts for passive TCP health!
+[x] Alerts for passive TCP health!
 https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/health_checking#arch-overview-health-checking
 
 # Health & dependencies
-[ ] How dependencies affect healthcheck overall
-*TBD* - Look all the patterns.
+[x] How dependencies affect healthcheck overall
 [ ] Healthcheck and retires
+[ ] Healthcheck and defaults
 [x] Pause / unpause dependent containers
 
 # Healthcheck & restarts
@@ -43,7 +43,7 @@ curl localhost:9323/metrics
 [x] Prometheus docs (Katacoda?)
 [x] Envoy docs (Katacoda?)
 https://www.envoyproxy.io/docs/envoy/v1.13.1/start/sandboxes/front_proxy#running-the-sandbox
-[ ] Watch patterns resiliency
+[x] Watch patterns resiliency
 [x] Insert Envoy with metrics for better observability
 
 # Ideation
@@ -51,6 +51,6 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/start/sandboxes/front_proxy#running
 
 # LHF
 [ ] e2e from Docker container for better portability
-[ ] Makefile more variables
+[x] Makefile more variables
 [ ] Rename service project
 [x] Build image first then start app

@@ -12,7 +12,7 @@ TAURUS_COMMAND = bzt \
 
 .PHONY: e2e
 
-default: compose
+default: build compose
 
 maven:
 	bash -c	"cd getting-started && ./mvnw package"
@@ -23,7 +23,7 @@ dev:
 build: maven
 	docker build -f $(DOCKER_BASEDIR)/Dockerfile.jvm -t quarkus/getting-started-jvm getting-started
 
-compose: build
+compose:
 	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml up -d --force --build; \
 	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml up -d --force
 

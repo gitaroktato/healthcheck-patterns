@@ -74,8 +74,12 @@ N/A
 *TBD*
 
 *Traffic shaping*
++ Removes pressure from services until they become healthy again
++ Don't have to sync your configuration with fallbacks, defaults, circuit-breakers
 
 *Alerting*
++ Better understanding on higher level from application perspective
++ Overview on current state even if network partitioning occurs
 
 # Technical Notes
 Traefik does not provide TCP healthchecks?

@@ -2,10 +2,15 @@
 - Restart
 - Traffic shaping
 - Alerting
+- Scaling?
+- Deployments?
 
 # Conflicting patterns
 Retries?
 - Not necessary, healtcheck can retry itself if you give it a lease period.
+
+Fallbacks & Defaults?
+- Deep healthcheck might ruin the effect of fallbacks
 
 # Required patterns
 Timeouts
@@ -27,8 +32,9 @@ N/A
 ## Shallow healthcheck
 *Restarts*
 *TBD*
-+ Helps if application has: memory, thread leak and deadlocks
-- Not helps if dependent service becomes unavailable
++ Helps if application has: memory, thread leak
+- Won't help if dependent service becomes unavailable
+- Won't help in case of deadlocks
 
 *Traffic shaping*
 + Guarantees that only healthy services will recieve traffic
@@ -45,12 +51,20 @@ N/A
 
 ## Deep healthcheck
 *Restart*
+*TBD*
 + Might help if timeout pattern is not applied.
++ Might help in case of deadlocks, if we probe the system with synthetic requests.
 
 *Traffic shaping*
+*TBD*
++ Removes pressure from services until they become healthy again
+
 - _"If the DB server has become a single point of failure (SPOF) and has gone down, there may be an overreaction that can take all of the servers down, depending on how the back-end server check program is written."_
+- Can ruin the effect of fallbacks and defaults
 
 *Alerting*
++ Better understanding on higher level from application perspective
++ Overview on current state even if network partitioning occurs
 
 ## Passive healthcheck
 *Restart*

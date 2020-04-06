@@ -9,6 +9,9 @@
 Retries?
 - Not necessary, healtcheck can retry itself if you give it a lease period.
 
+Fallbacks & Defaults?
+- Deep healthcheck might ruin the effect of fallbacks
+
 # Required patterns
 Timeouts
 - Either in application or at LB level
@@ -48,13 +51,20 @@ N/A
 
 ## Deep healthcheck
 *Restart*
+*TBD*
 + Might help if timeout pattern is not applied.
 + Might help in case of deadlocks, if we probe the system with synthetic requests.
 
 *Traffic shaping*
+*TBD*
++ Removes pressure from services until they become healthy again
+
 - _"If the DB server has become a single point of failure (SPOF) and has gone down, there may be an overreaction that can take all of the servers down, depending on how the back-end server check program is written."_
+- Can ruin the effect of fallbacks and defaults
 
 *Alerting*
++ Better understanding on higher level from application perspective
++ Overview on current state even if network partitioning occurs
 
 ## Passive healthcheck
 *Restart*

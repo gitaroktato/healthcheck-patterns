@@ -5,6 +5,9 @@
 - Scaling?
 - Deployments?
 
+# Service Level Failure Types
+ memory, thread leak, pool misconfigurations (*TBD* all types), deadlocks
+
 # Conflicting patterns
 Retries?
 - Not necessary, healtcheck can retry itself if you give it a lease period.
@@ -16,7 +19,7 @@ Fallbacks & Defaults?
 Timeouts
 - Either in application or at LB level
 
-# Patterns
+# Health Check Patterns
 ## No healthcheck
 *Restart*
 N/A
@@ -32,7 +35,7 @@ N/A
 ## Shallow healthcheck
 *Restarts*
 *TBD*
-+ Helps if application has: memory, thread leak
++ Helps if application has: memory, thread leak, pool misconfigurations
 - Won't help if dependent service becomes unavailable
 - Won't help in case of deadlocks
 
@@ -68,6 +71,7 @@ N/A
 
 ## Passive healthcheck
 *Restart*
+*TBD*
 
 *Traffic shaping*
 

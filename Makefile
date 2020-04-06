@@ -1,6 +1,14 @@
 DOCKER_BASEDIR = getting-started/src/main/docker
-# Values are: hello-test, mongo-test, envoy-hello-test and envoy-mongo-test
-SCENARIO = envoy-hello-test
+# Values are: hello-test, mongo-test
+SCENARIO = mongo-test
+# Envoy endpoint is 192.168.99.100:10000
+# Traefik endpoint is 192.168.99.100
+BASE_URL = 192.168.99.100:10000
+
+TAURUS_COMMAND = bzt \
+	-o settings.artifacts-dir=e2e/logs \
+	-o settings.env.BASE_URL=$(BASE_URL) \
+	-o execution.0.scenario=$(SCENARIO) e2e/hello-test.yml
 
 .PHONY: e2e
 
@@ -25,10 +33,10 @@ clean:
 	rm -rf e2e/logs
 
 e2e:
-	bzt -o settings.artifacts-dir=e2e/logs -o execution.0.scenario=$(SCENARIO) e2e/hello-test.yml
+	$(TAURUS_COMMAND)
 
 chaos:
 	bash -c	"docker ps -q --filter label=killable | xargs chaos-testing/kill-container.sh &"; \
-	bzt -o settings.artifacts-dir=e2e/logs -o execution.0.scenario=$(SCENARIO) e2e/hello-test.yml
+	$(TAURUS_COMMAND)
 
 restart: clean default

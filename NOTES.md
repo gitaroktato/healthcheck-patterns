@@ -6,7 +6,15 @@
 - Deployments?
 
 # Service Level Failure Types
- memory, thread leak, pool misconfigurations (*TBD* all types), deadlocks
+ memory, thread leak, pool misconfigurations, deadlocks
+
+ ## Connection pool misconfigurations
+ - Timeout
+ - Invalid connections
+ - Blocked threads
+ - Unbounded number of connections
+ - Overvflooding
+ - Leaks
 
 # Conflicting patterns
 Retries?
@@ -59,7 +67,6 @@ N/A
 + Might help in case of deadlocks, if we probe the system with synthetic requests.
 
 *Traffic shaping*
-*TBD*
 + Removes pressure from services until they become healthy again
 
 - _"If the DB server has become a single point of failure (SPOF) and has gone down, there may be an overreaction that can take all of the servers down, depending on how the back-end server check program is written."_

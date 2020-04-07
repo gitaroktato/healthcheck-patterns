@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: application
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      service: application
+  template:
+    metadata:
+      annotations:
+        killable: "true"
+      labels:
+        service: application
+    spec:
+      containers:
+        - image: quarkus/getting-started-jvm
+          imagePullPolicy: Never
+          name: application
+          ports:
+          - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: application
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+  selector:
+    service: application

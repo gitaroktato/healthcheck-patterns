@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: mongo
+  template:
+    metadata:
+      annotations:
+        killable: "true"
+      labels:
+        service: mongo
+    spec:
+      containers:
+      - image: mongo:4.0
+        imagePullPolicy: ""
+        name: mongo
+        ports:
+        - containerPort: 27017
+      serviceAccountName: ""
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+spec:
+  ports:
+  - port: 27017
+  selector:
+    service: mongo
+
+

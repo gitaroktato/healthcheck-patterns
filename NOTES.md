@@ -30,7 +30,7 @@ Timeouts
 # Health Check Patterns
 ## No healthcheck
 *Restart*
-N/A
++ Based on existing requests / limits
 
 *Traffic shaping*
 N/A

@@ -6,7 +6,8 @@
 - Deployments?
 
 # Service Level Failure Types
- memory, thread leak, pool misconfigurations, deadlocks
+*TBD* All failure types from book!
+ bugs, memory, thread leak, pool misconfigurations, deadlocks
 
  ## Connection pool misconfigurations
  - Timeout
@@ -42,10 +43,9 @@ N/A
 
 ## Shallow healthcheck
 *Restarts*
-*TBD*
-+ Helps if application has: memory, thread leak, pool misconfigurations
++ Helps if application has: memory, thread leak
 - Won't help if dependent service becomes unavailable
-- Won't help in case of deadlocks
+- Won't help in case of deadlocks, pool misconfigs, bugs
 
 *Traffic shaping*
 + Guarantees that only healthy services will recieve traffic
@@ -62,9 +62,11 @@ N/A
 
 ## Deep healthcheck
 *Restart*
-*TBD*
++ Helps if application has: memory, thread leak, pool misconfigurations
 + Might help if timeout pattern is not applied.
-+ Might help in case of deadlocks, if we probe the system with synthetic requests.
+- Might help in case of deadlocks, if we probe the system with synthetic requests.
+*TBD*
+- To take maximum effect, we should monitor current service status and expose it
 
 *Traffic shaping*
 + Removes pressure from services until they become healthy again
@@ -79,6 +81,7 @@ N/A
 ## Passive healthcheck
 *Restart*
 *TBD*
+- To take maximum effect, we should monitor current service status and expose it
 
 *Traffic shaping*
 + Removes pressure from services until they become healthy again

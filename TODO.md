@@ -7,7 +7,7 @@
 
 # Healthcheck & traffic shaping
 [x] Getting traffic to only healthy services
-[ ] Outlier detection
+[x] Outlier detection
 https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/outlier#arch-overview-outlier-detection
 
 # Healthcheck alerts
@@ -22,7 +22,7 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/health
 [x] Pause / unpause dependent containers
 
 # Healthcheck & restarts
-[ ] Liveness and readiness probe
+[x] Liveness and readiness probe
 https://kubernetes.io/blog/2020/01/22/kubeinvaders-gamified-chaos-engineering-tool-for-kubernetes/
 https://medium.com/faun/how-to-inject-chaos-on-kubernetes-resources-using-litmuschaos-c5ddee457b12
 

@@ -6,7 +6,16 @@
 - Deployments?
 
 # Service Level Failure Types
- memory, thread leak, pool misconfigurations (*TBD* all types), deadlocks
+*TBD* All failure types from book!
+ bugs, memory, thread leak, pool misconfigurations, deadlocks
+
+ ## Connection pool misconfigurations
+ - Timeout
+ - Invalid connections
+ - Blocked threads
+ - Unbounded number of connections
+ - Overvflooding
+ - Leaks
 
 # Conflicting patterns
 Retries?
@@ -22,7 +31,7 @@ Timeouts
 # Health Check Patterns
 ## No healthcheck
 *Restart*
-N/A
++ Based on existing requests / limits
 
 *Traffic shaping*
 N/A
@@ -34,10 +43,9 @@ N/A
 
 ## Shallow healthcheck
 *Restarts*
-*TBD*
-+ Helps if application has: memory, thread leak, pool misconfigurations
++ Helps if application has: memory, thread leak
 - Won't help if dependent service becomes unavailable
-- Won't help in case of deadlocks
+- Won't help in case of deadlocks, pool misconfigs, bugs
 
 *Traffic shaping*
 + Guarantees that only healthy services will recieve traffic
@@ -54,12 +62,13 @@ N/A
 
 ## Deep healthcheck
 *Restart*
-*TBD*
++ Helps if application has: memory, thread leak, pool misconfigurations
 + Might help if timeout pattern is not applied.
-+ Might help in case of deadlocks, if we probe the system with synthetic requests.
+- Might help in case of deadlocks, if we probe the system with synthetic requests.
+*TBD*
+- To take maximum effect, we should monitor current service status and expose it
 
 *Traffic shaping*
-*TBD*
 + Removes pressure from services until they become healthy again
 
 - _"If the DB server has become a single point of failure (SPOF) and has gone down, there may be an overreaction that can take all of the servers down, depending on how the back-end server check program is written."_
@@ -72,6 +81,7 @@ N/A
 ## Passive healthcheck
 *Restart*
 *TBD*
+- To take maximum effect, we should monitor current service status and expose it
 
 *Traffic shaping*
 + Removes pressure from services until they become healthy again

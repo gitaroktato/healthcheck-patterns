@@ -1,4 +1,5 @@
-DOCKER_BASEDIR = getting-started/src/main/docker
+APPLICATION_BASEDIR = application
+DOCKER_BASEDIR = $(APPLICATION_BASEDIR)/src/main/docker
 # Values are: hello-test, mongo-test
 SCENARIO = mongo-test
 # Envoy endpoint is 192.168.99.100:10000
@@ -12,22 +13,25 @@ TAURUS_COMMAND = bzt \
 
 .PHONY: e2e
 
-default: build compose
+build: docker-build compose
 
 maven:
-	bash -c	"cd getting-started && ./mvnw package"
+	bash -c	"cd $(APPLICATION_BASEDIR) && ./mvnw package"
+
+maven-clean:
+	bash -c	"cd $(APPLICATION_BASEDIR) && ./mvnw clean"
 
 dev:
-	bash -c	"cd getting-started && ./mvnw quarkus:dev"
+	bash -c	"cd $(APPLICATION_BASEDIR) && ./mvnw quarkus:dev"
 
-build: maven
-	docker build -f $(DOCKER_BASEDIR)/Dockerfile.jvm -t quarkus/getting-started-jvm getting-started
+docker-build: maven
+	docker build -f $(DOCKER_BASEDIR)/Dockerfile.jvm -t quarkus/application-jvm $(APPLICATION_BASEDIR)
 
 compose:
 	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml up -d --force --build; \
 	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml up -d --force
 
-clean:
+clean: maven-clean
 	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml down --remove-orphans; \
 	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml down --remove-orphans; \
 	rm -rf e2e/logs

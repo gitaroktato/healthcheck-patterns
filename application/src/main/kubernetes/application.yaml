@@ -15,7 +15,7 @@ spec:
         service: application
     spec:
       containers:
-        - image: quarkus/getting-started-jvm
+        - image: quarkus/application-jvm
           imagePullPolicy: Never
           name: application
           ports:

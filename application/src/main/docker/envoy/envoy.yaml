@@ -31,19 +31,19 @@ static_resources:
     type: strict_dns
     lb_policy: round_robin
     http2_protocol_options: {}
-    # health_checks:
-    #   timeout: 2s
-    #   interval: 5s
-    #   unhealthy_threshold: 2
-    #   healthy_threshold: 1
-    #   http_health_check:
-    #     # path: "/application/health/live"
-    #     path: "/application/health/ready"
-    outlier_detection:
-      consecutive_5xx: 3
+    health_checks:
+      timeout: 2s
       interval: 5s
-      base_ejection_time: 30s
-      max_ejection_percent: 50
+      unhealthy_threshold: 2
+      healthy_threshold: 1
+      http_health_check:
+        # path: "/application/health/live"
+        path: "/application/health/ready"
+    # outlier_detection:
+    #   consecutive_5xx: 3
+    #   interval: 5s
+    #   base_ejection_time: 30s
+    #   max_ejection_percent: 50
     load_assignment:
       cluster_name: application
       endpoints:

@@ -64,8 +64,9 @@ N/A
 *Restart*
 + Helps if application has: memory, thread leak, pool misconfigurations
 + Might help if timeout pattern is not applied.
+
 - Might help in case of deadlocks, if we probe the system with synthetic requests.
-*TBD*
+- You have to distinguish synthetic data from real usage statistics!
 - To take maximum effect, we should monitor current service status and expose it
 
 *Traffic shaping*

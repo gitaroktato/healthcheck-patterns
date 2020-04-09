@@ -39,11 +39,12 @@ public class MeteringHealthCheck implements ApplicationHealthCheck {
         } else {
             responseBuilder.withData(ENABLED_KEY, true);
             var failedRatio = getFailedRatio();
-            responseBuilder.withData("failed ratio", failedRatio);
+            responseBuilder.withData("failed ratio", Double.toString(failedRatio));
             var lastCallSince = getLastCallSince();
             responseBuilder.withData("last call since(ms)", lastCallSince);
+            System.out.println(failureThreshold);
             if (failedRatio > failureThreshold
-                    && lastCallSince > maxEvictionSeconds * 1000) {
+                    && lastCallSince < maxEvictionSeconds * 1000) {
                 responseBuilder.down();
             } else {
                 responseBuilder.up();
@@ -60,10 +61,10 @@ public class MeteringHealthCheck implements ApplicationHealthCheck {
         }
     }
 
-    private long getFailedRatio() {
+    private double getFailedRatio() {
         if (incrementAndGetCounter.getCount() == 0) {
             return 0;
         }
-        return incrementAndGetFailed.getCount() / incrementAndGetCounter.getCount();
+        return incrementAndGetFailed.getCount() / (double)incrementAndGetCounter.getCount();
     }
 }

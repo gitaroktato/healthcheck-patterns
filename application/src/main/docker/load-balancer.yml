@@ -27,13 +27,13 @@ services:
     volumes:
       - ./envoy/envoy.yaml:/etc/envoy/envoy.yaml
   application-1:
-    image: quarkus/application-jvm
+    image: quarkus/application-jvm:1.0
     ports:
       - "8090:8080"
     labels:
       killable: true
   application-2:
-    image: quarkus/application-jvm
+    image: quarkus/application-jvm:1.0
     ports:
       - "8091:8080"
     labels:

@@ -3,8 +3,8 @@
 - Traffic shaping
 - Alerting
 - Scaling?
-- Deployments?
-*TBD*
+
+## Deployments
 Startup probe can help avoiding misconfiguration and rollback to stable deployment.
 
 # Service Level Failure Types

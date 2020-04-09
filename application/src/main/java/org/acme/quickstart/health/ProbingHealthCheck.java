@@ -13,7 +13,7 @@ import javax.inject.Inject;
 public class ProbingHealthCheck implements ApplicationHealthCheck {
 
     @ConfigProperty(name = "probing.healthcheck.enabled", defaultValue = "false")
-    private boolean probingHealthCheckEnabled;
+    boolean probingHealthCheckEnabled;
     @Inject
     CounterService counterService;
 

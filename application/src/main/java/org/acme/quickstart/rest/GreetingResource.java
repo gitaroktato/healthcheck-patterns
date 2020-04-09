@@ -1,4 +1,4 @@
-package org.acme.quickstart;
+package org.acme.quickstart.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

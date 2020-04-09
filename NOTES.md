@@ -4,6 +4,8 @@
 - Alerting
 - Scaling?
 - Deployments?
+*TBD*
+Startup probe can help avoiding misconfiguration and rollback to stable deployment.
 
 # Service Level Failure Types
 *TBD* All failure types from book!

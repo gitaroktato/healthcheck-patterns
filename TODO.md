@@ -23,8 +23,8 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/health
 
 # Healthcheck & restarts
 [x] Liveness and readiness probe
-[ ] Custom healthcheck with failure rate
-[ ] Probing with synthetic request
+[x] Custom healthcheck with failure rate
+[x] Probing with synthetic request
 https://kubernetes.io/blog/2020/01/22/kubeinvaders-gamified-chaos-engineering-tool-for-kubernetes/
 https://medium.com/faun/how-to-inject-chaos-on-kubernetes-resources-using-litmuschaos-c5ddee457b12
 
@@ -55,5 +55,5 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/start/sandboxes/front_proxy#running
 # LHF
 [ ] e2e from Docker container for better portability
 [x] Makefile more variables
-[ ] Rename service project
+[x] Rename service project
 [x] Build image first then start app

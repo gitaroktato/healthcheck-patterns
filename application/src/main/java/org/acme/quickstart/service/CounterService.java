@@ -13,7 +13,7 @@ import javax.inject.Inject;
 public class CounterService {
 
     @Inject
-    private MongoClient mongoClient;
+    MongoClient mongoClient;
     private static final String COLLECTION_ID = "hello";
     private static final Document ID = new Document("_id",
             new ObjectId("cafebabe0123456789012345"));

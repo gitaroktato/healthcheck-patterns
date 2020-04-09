@@ -15,11 +15,11 @@ import javax.inject.Inject;
 public class MeteringHealthCheck implements ApplicationHealthCheck {
 
     @ConfigProperty(name = "metering.healthcheck.enabled", defaultValue = "false")
-    private boolean meteringHealthCheckEnabled;
+    boolean meteringHealthCheckEnabled;
     @ConfigProperty(name = "metering.healthcheck.failure-threshold", defaultValue = "0.2")
-    private double failureThreshold;
+    double failureThreshold;
     @ConfigProperty(name = "metering.healthcheck.max-eviction-seconds", defaultValue = "20")
-    private long maxEvictionSeconds;
+    long maxEvictionSeconds;
     @Inject
     @Metric(name = MongoResource.METRIC_INCREMENT_AND_GET_FAILED_COUNTER, absolute = true)
     Counter incrementAndGetFailed;

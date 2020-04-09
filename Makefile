@@ -1,5 +1,6 @@
 APPLICATION_BASEDIR = application
 DOCKER_BASEDIR = $(APPLICATION_BASEDIR)/src/main/docker
+K8S_BASEDIR = $(APPLICATION_BASEDIR)/src/main/kubernetes
 # Values are: hello-test, mongo-test
 SCENARIO = mongo-test
 # Envoy endpoint is 192.168.99.100:10000
@@ -35,6 +36,10 @@ clean: maven-clean
 	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml down --remove-orphans; \
 	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml down --remove-orphans; \
 	rm -rf e2e/logs
+
+k8s-deploy:
+	kubectl apply -f $(K8S_BASEDIR)/application.yaml -f $(K8S_BASEDIR)/mongo.yaml -n test;
+	minikube service -n test application --url
 
 e2e:
 	$(TAURUS_COMMAND)

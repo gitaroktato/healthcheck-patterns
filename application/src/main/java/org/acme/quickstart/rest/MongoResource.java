@@ -4,6 +4,7 @@ import org.acme.quickstart.service.CounterService;
 import org.eclipse.microprofile.metrics.Counter;
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
 import org.eclipse.microprofile.metrics.annotation.Metric;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 
@@ -16,17 +17,22 @@ import javax.ws.rs.core.MediaType;
 @Path("/mongo")
 public class MongoResource {
 
+    public static final String METRIC_INCREMENT_AND_GET_FAILED_COUNTER = "incrementAndGetFailedCounter";
+    public static final String METRIC_INCREMENT_AND_GET_COUNTER = "incrementAndGetCounter";
+    public static final String METRIC_LAST_INVOKED_MILLIS = "lastInvokedMillis";
+
     @Inject
     CounterService counterService;
     @Inject
-    @Metric(name = "incrementAndGetFailedCounter")
+    @Metric(name = METRIC_INCREMENT_AND_GET_FAILED_COUNTER, absolute = true)
     Counter incrementAndGetFailed;
+    private long lastInvokedMillis;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Counted(name = "incrementAndGetCounter")
-    @Timed(name = "incrementAndGetTimer", unit = MetricUnits.MILLISECONDS)
+    @Counted(name = METRIC_INCREMENT_AND_GET_COUNTER, absolute = true)
     public String getMongoObject() {
+        lastInvokedMillis = System.currentTimeMillis();
         try {
             var counter = counterService.incrementAndGetCounter();
             return counter.toJson();
@@ -34,5 +40,10 @@ public class MongoResource {
             incrementAndGetFailed.inc();
             throw ex;
         }
+    }
+
+    @Gauge(name= METRIC_LAST_INVOKED_MILLIS, unit = MetricUnits.NONE, absolute = true)
+    public Long getLastInvokedMillis() {
+        return lastInvokedMillis;
     }
 }

@@ -13,6 +13,7 @@ spec:
         killable: "true"
       labels:
         service: mongo
+        killable: "true"
     spec:
       containers:
       - image: mongo:4.0

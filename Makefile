@@ -56,6 +56,12 @@ k8s-deploy: docker-build
 k8s-rollback:
 	 kubectl rollout undo deployment.v1.apps/application -n test
 
+k8s-chaos:
+	chaos-testing/whack-a-pod.sh
+
+k8s-clean:
+	kubectl delete --all -n test pod,deploy,rs,svc
+
 e2e:
 	$(TAURUS_COMMAND)
 

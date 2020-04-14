@@ -46,7 +46,7 @@ k8s-monitoring-deploy:
 	@echo "=== Prometheus is running at ==="
 	minikube service -n monitoring prometheus --url
 
-k8s-deploy: k8s-monitoring-deploy docker-build
+k8s-deploy: docker-build
 	kubectl apply -f $(K8S_BASEDIR)/test-namespace.yaml \
 		-f $(K8S_BASEDIR)/application.yaml \
 		-f $(K8S_BASEDIR)/mongo.yaml -n test;

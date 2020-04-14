@@ -83,8 +83,8 @@ N/A
 
 ## Passive healthcheck
 *Restart*
-*TBD*
-- To take maximum effect, we should monitor current service status and expose it
++ To take maximum effect, we should monitor current service status and expose it
+- Hard to nail it
 
 *Traffic shaping*
 + Removes pressure from services until they become healthy again

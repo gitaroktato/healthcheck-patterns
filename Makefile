@@ -6,7 +6,7 @@ K8S_BASEDIR = $(APPLICATION_BASEDIR)/src/main/kubernetes
 SCENARIO = mongo-test
 # Envoy endpoint is 192.168.99.100:10000
 # Traefik endpoint is 192.168.99.100
-BASE_URL = 192.168.99.100:10000
+BASE_URL = 192.168.99.100:32568
 
 TAURUS_COMMAND = bzt \
 	-o settings.artifacts-dir=e2e/logs \
@@ -38,7 +38,7 @@ clean: maven-clean
 	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml down --remove-orphans; \
 	rm -rf e2e/logs
 
-k8s-deploy:
+k8s-deploy: docker-build
 	kubectl apply -f $(K8S_BASEDIR)/application.yaml -f $(K8S_BASEDIR)/mongo.yaml -n test;
 	minikube service -n test application --url
 

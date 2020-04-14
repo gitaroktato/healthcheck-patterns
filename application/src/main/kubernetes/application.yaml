@@ -10,9 +10,12 @@ spec:
   template:
     metadata:
       annotations:
-        killable: "true"
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/application/metrics"
       labels:
         service: application
+        killable: "true"
     spec:
       containers:
         - image: quarkus/application-jvm:1.0

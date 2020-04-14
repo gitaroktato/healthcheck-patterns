@@ -38,8 +38,19 @@ clean: maven-clean
 	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml down --remove-orphans; \
 	rm -rf e2e/logs
 
-k8s-deploy: docker-build
-	kubectl apply -f $(K8S_BASEDIR)/application.yaml -f $(K8S_BASEDIR)/mongo.yaml -n test;
+k8s-monitoring-deploy: 
+	kubectl apply -f $(K8S_BASEDIR)/monitoring-namespace.yaml \
+		-f $(K8S_BASEDIR)/prometheus-config.yaml \
+		-f $(K8S_BASEDIR)/prometheus-deployment.yaml \
+		-f $(K8S_BASEDIR)/prometheus-service.yaml;
+	@echo "=== Prometheus is running at ==="
+	minikube service -n monitoring prometheus --url
+
+k8s-deploy: k8s-monitoring-deploy docker-build
+	kubectl apply -f $(K8S_BASEDIR)/test-namespace.yaml \
+		-f $(K8S_BASEDIR)/application.yaml \
+		-f $(K8S_BASEDIR)/mongo.yaml -n test;
+	@echo "=== Application is running at ==="
 	minikube service -n test application --url
 
 k8s-rollback:

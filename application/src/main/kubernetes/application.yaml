@@ -15,7 +15,7 @@ spec:
         prometheus.io/path: "/application/metrics"
       labels:
         service: application
-        killable: "true"
+        # killable: "true"
     spec:
       containers:
         - image: quarkus/application-jvm:1.0

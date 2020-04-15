@@ -9,7 +9,7 @@ Startup probe can help avoiding misconfiguration and rollback to stable deployme
 
 # Service Level Failure Types
 *TBD* All failure types from book!
- bugs, memory, thread leak, pool misconfigurations, deadlocks
+ bugs, config issue, synchronization failed, memory, thread leak, pool misconfigurations, deadlocks
 
  ## Connection pool misconfigurations
  - Timeout

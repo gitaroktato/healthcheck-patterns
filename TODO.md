@@ -20,6 +20,9 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/health
 [ ] Healthcheck and retires
 [ ] Healthcheck and defaults
 [x] Pause / unpause dependent containers
+[ ] Disk free space
+https://download.eclipse.org/microprofile/microprofile-health-2.1/microprofile-health-spec.html
+https://rieckpil.de/whatis-eclipse-microprofile-health/
 
 # Healthcheck & restarts
 [x] Liveness and readiness probe

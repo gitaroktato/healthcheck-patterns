@@ -4,7 +4,8 @@ import org.acme.quickstart.rest.MongoResource;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 import org.eclipse.microprofile.health.Readiness;
-import org.eclipse.microprofile.metrics.*;
+import org.eclipse.microprofile.metrics.Gauge;
+import org.eclipse.microprofile.metrics.Meter;
 import org.eclipse.microprofile.metrics.annotation.Metric;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -22,10 +23,10 @@ public class MeteringHealthCheck implements ApplicationHealthCheck {
     long maxEvictionSeconds;
     @Inject
     @Metric(name = MongoResource.METRIC_INCREMENT_AND_GET_FAILED_COUNTER, absolute = true)
-    Counter incrementAndGetFailed;
+    Meter incrementAndGetFailed;
     @Inject
     @Metric(name = MongoResource.METRIC_INCREMENT_AND_GET_COUNTER, absolute = true)
-    Counter incrementAndGetCounter;
+    Meter incrementAndGetCounter;
     @Inject
     @Metric(name = MongoResource.METRIC_LAST_INVOKED_MILLIS, absolute = true)
     Gauge<Long> lastInvokedMillis;
@@ -42,7 +43,6 @@ public class MeteringHealthCheck implements ApplicationHealthCheck {
             responseBuilder.withData("failed ratio", Double.toString(failedRatio));
             var lastCallSince = getLastCallSince();
             responseBuilder.withData("last call since(ms)", lastCallSince);
-            System.out.println(failureThreshold);
             if (failedRatio > failureThreshold
                     && lastCallSince < maxEvictionSeconds * 1000) {
                 responseBuilder.down();
@@ -62,9 +62,10 @@ public class MeteringHealthCheck implements ApplicationHealthCheck {
     }
 
     private double getFailedRatio() {
-        if (incrementAndGetCounter.getCount() == 0) {
+        if (incrementAndGetCounter.getOneMinuteRate() == 0) {
             return 0;
         }
-        return incrementAndGetFailed.getCount() / (double)incrementAndGetCounter.getCount();
+        return incrementAndGetFailed.getOneMinuteRate()
+                / incrementAndGetCounter.getOneMinuteRate();
     }
 }

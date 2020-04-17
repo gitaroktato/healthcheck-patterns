@@ -1,18 +1,18 @@
 package org.acme.quickstart.rest;
 
 import org.acme.quickstart.service.CounterService;
-import org.eclipse.microprofile.metrics.Counter;
+import org.eclipse.microprofile.metrics.Meter;
 import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
+import org.eclipse.microprofile.metrics.annotation.Metered;
 import org.eclipse.microprofile.metrics.annotation.Metric;
-import org.eclipse.microprofile.metrics.annotation.Timed;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Path("/mongo")
 public class MongoResource {
@@ -25,19 +25,20 @@ public class MongoResource {
     CounterService counterService;
     @Inject
     @Metric(name = METRIC_INCREMENT_AND_GET_FAILED_COUNTER, absolute = true)
-    Counter incrementAndGetFailed;
+    Meter incrementAndGetFailed;
     private long lastInvokedMillis;
+    private AtomicInteger failedCount = new AtomicInteger(0);
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Counted(name = METRIC_INCREMENT_AND_GET_COUNTER, absolute = true)
+    @Metered(name = METRIC_INCREMENT_AND_GET_COUNTER, absolute = true)
     public String getMongoObject() {
         lastInvokedMillis = System.currentTimeMillis();
         try {
             var counter = counterService.incrementAndGetCounter();
             return counter.toJson();
         } catch (RuntimeException ex) {
-            incrementAndGetFailed.inc();
+            incrementAndGetFailed.mark(failedCount.incrementAndGet());
             throw ex;
         }
     }

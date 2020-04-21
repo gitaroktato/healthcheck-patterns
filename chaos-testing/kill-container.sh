@@ -1,11 +1,11 @@
 #!/bin/bash
-container=( "$@" )
+CONTAINERS=( $(docker ps -q --filter label=killable) )
 
 # Seed random generator
 RANDOM=$(date +%s)
 while [ 1 ]
 do
-    rand=${container[$RANDOM % ${#container[@]}]}
+    rand=${CONTAINERS[$RANDOM % ${#CONTAINERS[@]}]}
     
     sleep 30s
     echo $(date)

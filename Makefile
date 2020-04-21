@@ -6,7 +6,7 @@ K8S_BASEDIR = $(APPLICATION_BASEDIR)/src/main/kubernetes
 SCENARIO = mongo-test
 # Envoy endpoint is 192.168.99.100:10000
 # Traefik endpoint is 192.168.99.100
-BASE_URL = 192.168.99.102:32371
+BASE_URL = 192.168.99.100:10000
 
 TAURUS_COMMAND = bzt \
 	-o settings.artifacts-dir=e2e/logs \
@@ -46,7 +46,7 @@ k8s-monitoring-deploy:
 	@echo "=== Prometheus is running at ==="
 	minikube service -n monitoring prometheus --url
 
-k8s-deploy: docker-build
+k8s-deploy:
 	kubectl apply -f $(K8S_BASEDIR)/test-namespace.yaml \
 		-f $(K8S_BASEDIR)/application.yaml \
 		-f $(K8S_BASEDIR)/mongo.yaml -n test;
@@ -60,10 +60,6 @@ k8s-clean:
 	kubectl delete --all -n test po,rs,svc,deploy
 
 e2e:
-	$(TAURUS_COMMAND)
-
-chaos:
-	bash -c	"docker ps -q --filter label=killable | xargs chaos-testing/kill-container.sh &"; \
 	$(TAURUS_COMMAND)
 
 restart: clean default

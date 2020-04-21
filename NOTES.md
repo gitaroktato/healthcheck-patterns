@@ -40,7 +40,7 @@ N/A
 
 *Alerting*
 + Based on the ratio of failed HTTP requests indirectly (passive)
-+ Works for TCP as well!
+- Won't work for TCP!
 - *DELAYING* if the rate drops because a dependent service timing out
 
 ## Shallow healthcheck
@@ -80,6 +80,9 @@ N/A
 *Alerting*
 + Better understanding on higher level from application perspective
 + Overview on current state even if network partitioning occurs
+
+*Deployment*
++ Startup probe can help avoiding misconfiguration and rollback to stable deployment.
 
 ## Passive healthcheck
 *Restart*

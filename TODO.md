@@ -62,4 +62,7 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/start/sandboxes/front_proxy#running
 [x] Build image first then start app
 
 # Demo
-[ ] split between killing containers and starting e2e
+[x] split between killing containers and starting e2e
+
+# Slides
+[ ] List of pool issues - mind map or word cloud?

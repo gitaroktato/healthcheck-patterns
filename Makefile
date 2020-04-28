@@ -15,7 +15,7 @@ TAURUS_COMMAND = bzt \
 
 .PHONY: e2e
 
-build: docker-build compose
+build: docker compose
 
 maven:
 	bash -c	"cd $(APPLICATION_BASEDIR) && ./mvnw package"
@@ -26,7 +26,7 @@ maven-clean:
 dev:
 	bash -c	"cd $(APPLICATION_BASEDIR) && ./mvnw quarkus:dev"
 
-docker-build: maven
+docker: maven
 	docker build -f $(DOCKER_BASEDIR)/Dockerfile.jvm -t quarkus/application-jvm:$(DOCKER_IMAGE_VERSION) $(APPLICATION_BASEDIR)
 
 compose:

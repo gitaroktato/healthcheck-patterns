@@ -20,7 +20,7 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/health
 [ ] Healthcheck and retires
 [ ] Healthcheck and defaults
 [x] Pause / unpause dependent containers
-[ ] Disk free space
+[x] Disk free space
 https://download.eclipse.org/microprofile/microprofile-health-2.1/microprofile-health-spec.html
 https://rieckpil.de/whatis-eclipse-microprofile-health/
 
@@ -65,4 +65,4 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/start/sandboxes/front_proxy#running
 [x] split between killing containers and starting e2e
 
 # Slides
-[ ] List of pool issues - mind map or word cloud?
+[x] List of pool issues - mind map or word cloud?

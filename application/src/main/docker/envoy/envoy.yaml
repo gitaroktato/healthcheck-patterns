@@ -39,11 +39,11 @@ static_resources:
       http_health_check:
         # path: "/application/health/live"
         path: "/application/health/ready"
-    # outlier_detection:
-    #   consecutive_5xx: 3
-    #   interval: 5s
-    #   base_ejection_time: 30s
-    #   max_ejection_percent: 50
+    outlier_detection:
+      consecutive_5xx: 3
+      interval: 5s
+      base_ejection_time: 30s
+      max_ejection_percent: 50
     load_assignment:
       cluster_name: application
       endpoints:

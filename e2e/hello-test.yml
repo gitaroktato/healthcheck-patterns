@@ -5,7 +5,7 @@ settings:
 
 execution:
 - concurrency: 3
-  hold-for: 5m
+  hold-for: 20m
   # ramp-up: 40s
   scenario: hello-test
 scenarios:

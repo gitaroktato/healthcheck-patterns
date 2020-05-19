@@ -34,11 +34,28 @@ No health checks? No problem! At least your implementation is not misleading. Bu
 The good news is that you can still rely on your container orchestrator if you've configured your container properly. Kubernetes restarts them if they stop, but it will happen only if your crashed process is also causing its container to exit. 
 
 ## Alerts
-You can still set up alerts based on the type of HTTP responses your load balancer sees, if you're using L7 load balancing. Unfortunately both with Envoy and Traefik it's not possible in-case of a TCP load balancer. I used these two PromQL queries and configured an alert if the error rate for a given service got higher than a specified threshold.
+You can still set up alerts based on the type of HTTP responses your load balancer sees, if you're using L7 load balancing. Unfortunately both with Envoy and Traefik it's not possible in-case of a TCP load balancer, because the lack of interpretation of the HTTP response codes. I used these two PromQL queries and configured an alert if the error rate for a given service got higher than a specified threshold.
 
+```
+sum(rate(envoy_cluster_upstream_rq_xx{envoy_response_code_class="5"}[$interval])) / 
+sum(rate(envoy_cluster_upstream_rq_xx[$interval]))
 ```
 
 ```
+sum(rate(traefik_entrypoint_requests_total{code=~"5.."}[$interval])) / 
+sum(rate(traefik_entrypoint_requests_total[$interval]))
+```
 
-You can see, that...
+One thing that's important to mention here, is that in many cases when a dependency (e.g. the database) is not available the response rate of the service drops. This causes spikes in the queries above, which are unseen for the predefined `$interval` because the previous higher rate of successful response. Below you can find two samples from the same time period with two different intervals. You can see that the spike is unseen if the duration of the timeout of the dependent service is less than the predefined interval. You can use it for your advantage to avoid alerts for intermittent outages which are not worth act upon (at-least not in the middle of the night).
+
+# TODO images
+
+## Deployments & Traffic Shaping
+I found no options to control deployments and traffic shaping if you don't have a health check implementation in-place. So, you need to advance to the next level of health checks if you plan to improve these two activities.
+
+# Shallow Health Checks
+Shallow health checks usually just verify if the HTTP pool is capable of providing some kind-of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios it makes sense to do a bit more than that, and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in-case there's a need to write to local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to file system. And there's no guarantee that write will succeed. If you're out of i-nodes, your log rotation can still fail and can lead to unwanted consequences.
+
+## Restarts
+# TODO low disk space health checks
 

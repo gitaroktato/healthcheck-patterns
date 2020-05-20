@@ -1,5 +1,7 @@
 package org.acme.quickstart.health;
 
+import io.vertx.core.json.Json;
+import org.acme.quickstart.rest.MongoResource;
 import org.acme.quickstart.service.CounterService;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.health.HealthCheckResponse;
@@ -15,7 +17,7 @@ public class ProbingHealthCheck implements ApplicationHealthCheck {
     @ConfigProperty(name = "probing.healthcheck.enabled", defaultValue = "false")
     boolean probingHealthCheckEnabled;
     @Inject
-    CounterService counterService;
+    MongoResource mongoResource;
 
     @Override
     public HealthCheckResponse call() {
@@ -24,16 +26,15 @@ public class ProbingHealthCheck implements ApplicationHealthCheck {
             responseBuilder.withData(ENABLED_KEY, false);
             responseBuilder.up();
         } else {
-            var counter = probe();
+            var result = probe();
             responseBuilder.withData(ENABLED_KEY, true);
-            responseBuilder.withData("Successful transactions", counter);
+            responseBuilder.withData("result", result);
             responseBuilder.up();
         }
         return responseBuilder.build();
     }
 
-    private int probe() {
-        var counter = counterService.incrementAndGetCounter();
-        return counter.getInteger("counter");
+    private String probe() {
+        return mongoResource.getMongoObject();
     }
 }

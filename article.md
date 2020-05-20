@@ -54,8 +54,52 @@ One thing that's important to mention here, is that in many cases when a depende
 I found no options to control deployments and traffic shaping if you don't have a health check implementation in-place. So, you need to advance to the next level of health checks if you plan to improve these two activities.
 
 # Shallow Health Checks
-Shallow health checks usually just verify if the HTTP pool is capable of providing some kind-of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios it makes sense to do a bit more than that, and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in-case there's a need to write to local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to file system. And there's no guarantee that write will succeed. If you're out of i-nodes, your log rotation can still fail and can lead to unwanted consequences.
+Shallow health checks usually just verify if the HTTP pool is capable of providing some kind-of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios it makes sense to do a bit more than that and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in-case there's a need to write to local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to file system. And there's no guarantee that write will succeed. If you're out of i-nodes, your log rotation can still fail and can lead to unwanted consequences. An exameple HTTP response of such implementation can be found [in my code][disk-health].
+
+```
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "disk",
+            "status": "UP",
+            "data": {
+                "usable bytes": 82728624128
+            }
+        }
+    ]
+}
+```
+
+Spring Boot Actuator has a [default implementation][spring-boot-disk-health] that has similar functionalities. 
+
+```
+{
+   "status":"UP",
+   "details":{
+      "diskSpace":{
+         "status":"UP",
+         "details":{
+            "total":250790436864,
+            "free":100327518208,
+            "threshold":10485760
+         }
+      }
+   }
+}
+```
 
 ## Restarts
-# TODO low disk space health checks
+In Kubernetes we have the option to configure a [liveness/readiness][liveness-readines] probe for our containers. With the help of this feature our service will be restarted automatically, in case it becomes unhealthy. This will recover some issues with the HTTP pool, like thread leaks and deadlocks and some of the more generic faults i.e. memory leaks. Note, that you won't catch any deadlock that occurs further in the stack, like at the database or integration level.
 
+If we're concerned about I/O operations, including disk free space in our health check can result as respawning our container in another worker node which hopefully has now enough to keep our services running. 
+
+In my sandbox here's the [liveness and readiness probe configuration][liveness-readiness-example] so you can try different scenarios by yourself.
+
+## Traffic shaping
+
+
+[liveness-readines]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+[disk-health]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/DiskHealthCheck.java
+[spring-boot-disk-health]: https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/system/DiskSpaceHealthIndicator.java
+[liveness-readiness-example]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/kubernetes/application.yaml#L27

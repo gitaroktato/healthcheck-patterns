@@ -97,7 +97,31 @@ If we're concerned about I/O operations, including disk free space in our health
 In my sandbox here's the [liveness and readiness probe configuration][liveness-readiness-example] so you can try different scenarios by yourself.
 
 ## Traffic shaping
+The most common way of using health checks is to integrate them with load balancers, so they can route traffic to only healthy instances. But what should we do in cases, when the database is not accessible from the service's point of view? In this scenario they will still retrieve workload and probably fail when trying to write to the database. We have 3 different options that offer some resolution:
 
+- Try to store the request in the service itself and retry later
+- Fail fast and let the caller do the retry
+- Include database in the health indicator of the service and try to reduce the number of these cases
+
+The first opiton will lose the request if the service restarts. The second option moves the problem one layer above. The third option leads us to deep health checks.
+
+## Alerting
+
+# Deep health checks
+
+## Traffic shaping
+
+## TODO connection pool issues.
+Shoud the service report itself as healthy or unheatlhy? This can indicate at least two different problems: Either the connection pool experiencing hard times or the database has some issues. In the later case most probably other instances will also report themselves as unhealthy... 
+
+## TODO!!! > Health checks are essential!!! Hahaha
+
+# Summary
+Health checks are just one aspect of fault tolerance
+- Introduce alerts one layer below
+
+## Maturity level
+Shallow or deep -> probing -> passive
 
 [liveness-readines]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 [disk-health]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/DiskHealthCheck.java

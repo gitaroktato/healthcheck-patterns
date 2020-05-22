@@ -1,10 +1,10 @@
 # An overview of health check patterns
 
-Many developers have some existing health check mechansim implemented especially nowadays in the "microservices era" of backend development. I really hope that you also do. Whenever you have something simple that just throws a HTTP 200 back at the caller or a more complex logic, it's good to be aware of the pros & cons of different health check implementations. In this article I'm going to go through each type of health checks and investiagate what kind of  issues can be resolved with each of them.
+Many developers have some existing health check mechansim implemented, especially nowadays in the "microservices era" of backend development. I really hope that you also do. Whenever you have something simple that just throws a HTTP 200 back at the caller or a more complex logic, it's good to be aware of the pros & cons of different health check implementations. In this article I'm going to go through each type of health checks and investiagate what kind of  issues can be resolved with each of them.
 
 # Why do we need health checks at all?
 
-Good question! Especially we have to consider how far I can get away with postponing the implementation. The reasons for not having health checks can be various, like tight project deadlines, corporate politics or complex configurations of vendor specific hardware. I won't judge you. But you have to know, that just because your code seem static it doesn't mean that it's behaving the same way when running for a longer period. You're depending on a computer hardware, 3rd party libraries, dependencies manintaned by other teams and none of them are providing 100% guarantees. As a rule of thumb you can't build 100% reliable software on top of unreliable components. Your service is going to fail shortly after your first release to production. And if it does, you have to detect it somehow. We all can agree that it's better to do it before end-users do.
+Good question! Especially we have to consider how far I can get away with postponing the implementation. The reasons for not having health checks can be various, like tight project deadlines, corporate politics or complex configurations of vendor specific hardware. I won't judge you. But you have to know, that just because your code seem static it doesn't mean that it's behaving the same way when running for a longer period. You're depending on a computer hardware, 3rd party libraries, dependencies manintaned by other teams and none of them are providing 100% guarantees. As a rule of thumb you can't build 100% reliable software on top of unreliable components. Your service is going to fail shortly after your first release to production. And if it does, you have to detect it somehow. We can all agree that it's better to do it before end-users do.
 
 ## Redundancy
 
@@ -106,8 +106,39 @@ The most common way of using health checks is to integrate them with load balanc
 The first opiton will lose the request if the service restarts. The second option moves the problem one layer above. The third option leads us to deep health checks.
 
 ## Alerting
+The same mechanism can be applied for creating alerts as before. Additionally, you can indicate the propotion of still healthy members VS all the members in the cluster, like in the example PromQL query below:
+
+```
+envoy_cluster_health_check_healthy{envoy_cluster_name="application"} /
+max_over_time(envoy_cluster_membership_total{envoy_cluster_name="application"}[1d])
+```
+
+Unfortunately Traefik is not exposing these metrics so it's not available in every load balancer.
+
+## Deployments
+Shallow health checks don't expose the lower layers of your application, so it can't be used to catch configuration issues during deployment. But with deep health check, the case is different.
 
 # Deep health checks
+Deep health check tries to include every integration point in your application. If you're using Spring Boot, you will have many [automatically configured health indicators][spring-boot-health-indicators] availalbe with Actuator. Here's an example on how health check will look in the sandbox application:
+
+```
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "MongoDB connection health check",
+            "status": "UP",
+            "data": {
+                "default": "admin, config, hello, local"
+            }
+        }
+    ]
+}
+```
+
+## Restarts
+
+It also makes sense to distinguish different health check endpoints for the controlling logic, just like Kubernetes does, to provide multiple actions for various failures. [Liveness, readiness and startup][liveness-readines] probes have 
 
 ## Traffic shaping
 
@@ -127,3 +158,4 @@ Shallow or deep -> probing -> passive
 [disk-health]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/DiskHealthCheck.java
 [spring-boot-disk-health]: https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/system/DiskSpaceHealthIndicator.java
 [liveness-readiness-example]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/kubernetes/application.yaml#L27
+[spring-boot-health-indicators]: https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-health-indicators

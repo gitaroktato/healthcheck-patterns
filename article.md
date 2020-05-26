@@ -138,7 +138,41 @@ Deep health check tries to include every integration point in your application. 
 
 ## Restarts
 
-It also makes sense to distinguish different health check endpoints for the controlling logic, just like Kubernetes does, to provide multiple actions for various failures. [Liveness, readiness and startup][liveness-readines] probes have 
+It also makes sense to have multiple health check endpoints for the controlling logic. Just like Kubernetes does. This can lead to applying different actions for different failures. [Liveness, readiness and startup][liveness-readines] probes are good examples. Each control a specific aspect of the orchestration. In the sandbox implementation, by visiting the deployment YAML you can see that each probe is using a different endpoint.
+
+```
+...
+          livenessProbe:
+            httpGet:
+              path: /application/health/live
+              port: http
+            failureThreshold: 2
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /application/health/ready
+              port: http
+            failureThreshold: 2
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          startupProbe:
+            httpGet:
+              path: /application/health
+              port: http
+            failureThreshold: 3
+            periodSeconds: 5
+...
+```
+
+The startup probe includes all health check types from the application (annotated with `@Liveness` and `@Readiness` respectively). If I'm including a health check that's actively testing if the connection to my dependencies are still working, Kubernetes will ensure that the rollout of the new deployment will proceed only if the related configuration is correct. 
+
+So, what happens if I'm introducing a bug in my configuration? As long as the startup probe is checking if the related dependency is reachable, the deployment will stall and can be rolled back with the following command (you can try this out in the sandbox implementation as well)
+
+```
+kubectl rollout undo deployment.v1.apps/application -n test
+```
+
 
 ## Traffic shaping
 

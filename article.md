@@ -175,15 +175,39 @@ kubectl rollout undo deployment.v1.apps/application -n test
 
 
 ## Traffic shaping
+Now, with deep health checks a workload will be assigned to a service only if its dependencies proven to be acceissible. For aggregates with multiple upstream dependencies, this means an all-or-nothing approach, which might be too restrictive. For services with just a database connection this only means additional pool validation. 
 
-## TODO connection pool issues.
-Shoud the service report itself as healthy or unheatlhy? This can indicate at least two different problems: Either the connection pool experiencing hard times or the database has some issues. In the later case most probably other instances will also report themselves as unhealthy... 
+## Connection pool issues
+What should we do in the case, when database dependency becomes inaccessible? Shoud the service report itself as healthy or unheatlhy? This can indicate at least two different problems: Either the connection pool experiencing hard times or the database has some issues. In the latter case most probably other instances will also report themselves as unhealthy and the load balancer can just go ahead and remove every instance from the fleet. In practice, usually they keep a certain traffic still flowing through, because simply it just does not make sense to totally stop serving requests. This can avoid a possible health-check related bug causing production outage. You should visit your load-balancing setting and set the upper limit of instances which can be removed. 
 
-## TODO!!! > Health checks are essential!!! Hahaha
+## Deep health checks and other fault-tolerant patterns - Probing
+How should I keep my circuit breaker configuration in-sync with my health-check implementations? If my application offers stale data from local cache when the real one is not available, shoud I report the application healthy or unhealthy? I say, that these are the limitations of deep health-checks which cannot be solved so easily. The most convenient way of reducing your health check false positives is by sending a synthetic request every time it's queried. If you're reading a user from database, add a synthetic user and read real data. If you're writing to a Kafka topic, send a message with a value that will allow consumers to distinguish synthetic messages from real ones. 
+
+The drawback is that you need to filter out the snythetic traffing in your monitoring infrastructure. Also it can produce more overhead than usual healtcheck operations.
+
+### Implementing probing
+The only way you can mess up the implementation if the excution path of probing is different from the real one. Let's assume you're not calling through the same controller you use for busines operations and someone implements circuit breaking logic in that place. Your healt check won't pass through your circuit breaker logic.
+
+- If your load balancer allows setting a specifi payload of the health check you can call the real controller direclty.
+- Otherwise you have to create the synthetic payload and forward your request to the original controller.
+
+In my [implementation][probing-custom-health] I chose to inject the controller and just include the result without any further interpretation in the heatlh-check class. It should be as simple as possible.
+
+If you're using Spring you can even use the [`forward:`][spring-forward] prefix to simplify the implementation even further.
+
+# Passive health checking
+How can we take this to the next level? Well, simply said there's no need to double check things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health. 
 
 # Summary
 Health checks are just one aspect of fault tolerance
 - Introduce alerts one layer below
+
+## Probing and passive health-checks
+- memory leaks
+- thread leaks
+- bugs
+- config issue
+- deadlocks
 
 ## Maturity level
 Shallow or deep -> probing -> passive
@@ -193,3 +217,5 @@ Shallow or deep -> probing -> passive
 [spring-boot-disk-health]: https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/system/DiskSpaceHealthIndicator.java
 [liveness-readiness-example]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/kubernetes/application.yaml#L27
 [spring-boot-health-indicators]: https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-health-indicators
+[probing-custom-health]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/ProbingHealthCheck.java#L37
+[spring-forward]: https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-redirecting-forward-prefix

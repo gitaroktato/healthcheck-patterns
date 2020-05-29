@@ -20,6 +20,8 @@ The coordination I was talking above can a container orchestrator or a load bala
 - Scaling
 - Deployments
 
+## TODO diagram from controller & actions.
+
 # Various health check implementations
 
 You can implement health checks in many-many ways and I'm going to show you an example on each. Then we're investigating the typical type of failures they are capable to indicate and their effectiveness.
@@ -196,7 +198,34 @@ In my [implementation][probing-custom-health] I chose to inject the controller a
 If you're using Spring you can even use the [`forward:`][spring-forward] prefix to simplify the implementation even further.
 
 # Passive health checking
-How can we take this to the next level? Well, simply said there's no need to double check things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health. 
+How can we take this to the next level? Well, simply said there's no need to verify things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health? This is the main concept of passive health checking. Unfortunately I've not found any support for these kind-of health reporting in the application frameworks I'm familiar with, so I had to craft my own. You can find the implementation in the [MeteringHealthCheck][MeteringHealthCheck] class. I'm using the same [meters][MeteringHealthCheck.incrementAndGetFailed] as in the [controller class][MongoResource] I'm wishing to inspect. When the failure rate is [higher than the configured threshold][MeteringHealthCheck.failure-threshold], I report the service as unhealthy.
+
+```
+## TODO
+```
+
+There are some additional things to note here. It does not make sense to remove the service forever, so it's better to include a [time limit][MeteringHealthCheck.maxEvictionSeconds] for the removal. After a while you would like to give a chance to the service again to see if the situation is getting better. 
+
+Remember the part, where I was writing about the difference of rates bettween normal operation and in case of failures? That's why it doesn't make sense to use determine the failure rate without a specified time window. And that's the reason for using [Meters instead of Counters][MeteringHealthCheck.getFailedRatio] when determining failure rates.
+
+And finally never-ever forget to include a [feature flag][MeteringHealthCheck.meteringHealthCheckEnabled]. This will buy you a lot of time, when having to deal with outages at the end of Friday or in the middle of the night. 
+
+## Restarts
+I think that using passive health checks for container restarts has a similar effect to deep health checks. So one implementation in your service is fair enough. If your framework offers deep health check out-of-the-box, it's OK to use it to control restarts.
+
+## Traffic shaping
+The real benefit of using this kind-of health checking is that you don't have to synchroinze the configuration with other fault-tolerant patterns, like defaults, fallbacks or circuit breakers. Even timeout configuration will not have an effect of the health checking mechanism itself, since the health endpoint won't trigger requests through your connection pool at all. It's just providing statistics.
+
+One of the great news is that Envoy offers this functionality by default, named as [outlier detection][Envoy.outlier-detection]. It is even exposing the information through metrics, so you can build your [own alerts][Envoy.outlier-metrics] based on them. 
+
+## Alerting
+The following PromQL query was able to show the propotion of the evicted instances, when using passive health checks.
+```
+
+```
+
+## Deployments
+For controlling deployments you need to interact with the dependent resources actively. Passive health check is not capable of doing that, so you're better of using probing or simple deep health checks. 
 
 # Summary
 Health checks are just one aspect of fault tolerance
@@ -219,3 +248,12 @@ Shallow or deep -> probing -> passive
 [spring-boot-health-indicators]: https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-health-indicators
 [probing-custom-health]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/ProbingHealthCheck.java#L37
 [spring-forward]: https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/mvc.html#mvc-redirecting-forward-prefix
+[MeteringHealthCheck]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/MeteringHealthCheck.java
+[MeteringHealthCheck.incrementAndGetFailed]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/MeteringHealthCheck.java#L26
+[MongoResource]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/rest/MongoResource.java#L41
+[MeteringHealthCheck.failure-threshold]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/MeteringHealthCheck.java#L46
+[MeteringHealthCheck.maxEvictionSeconds]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/MeteringHealthCheck.java#L23
+[MeteringHealthCheck.getFailedRatio]: https://github.com/gitaroktato/healthcheck-patterns/blob/5df3c0b0606ffa312a069f9c3d85aab08b665b08/application/src/main/java/org/acme/quickstart/health/MeteringHealthCheck.java#L64
+[MeteringHealthCheck.meteringHealthCheckEnabled]: https://github.com/gitaroktato/healthcheck-patterns/blob/5df3c0b0606ffa312a069f9c3d85aab08b665b08/application/src/main/java/org/acme/quickstart/health/MeteringHealthCheck.java#L19
+[Envoy.outlier-detection]: https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/outlier#arch-overview-outlier-detection
+[Envoy.outlier-metrics]: https://www.envoyproxy.io/docs/envoy/v1.13.1/configuration/upstream/cluster_manager/cluster_stats#outlier-detection-statistics

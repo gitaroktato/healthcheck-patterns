@@ -221,25 +221,37 @@ One of the great news is that Envoy offers this functionality by default, named 
 ## Alerting
 The following PromQL query was able to show the propotion of the evicted instances, when using passive health checks.
 ```
-
+envoy_cluster_outlier_detection_ejections_active{envoy_cluster_name="application"} \
+max_over_time(envoy_cluster_membership_total{envoy_cluster_name="application"}[1d])
 ```
 
 ## Deployments
-For controlling deployments you need to interact with the dependent resources actively. Passive health check is not capable of doing that, so you're better of using probing or simple deep health checks. 
+For controlling deployments you need to interact with the dependent resources actively. Passive health check is not capable of doing that, so you're better off using probing or simple deep health checks. 
 
 # Summary
-Health checks are just one aspect of fault tolerance
-- Introduce alerts one layer below
+Health checks are just one aspect of fault tolerance. There are many other fault-tolerant patterns availalbe. I'm not even sure if they're the oldest ones, but I think they're the most known. Getting your heatlh-checks rigt bring you closer for a more resilient setup of your microservices. 
+
+As a general rule, make sure you're actively monitoring every layer of your architecture. It will speed up your root cause analysis drastically. Imagine having a deep health check alert showing that the database is down. Having metrics on the database level and shown on the same dashboard will immediatly help you on having a better understanding on the problem.
+
+
+## Maturity level
+Based on my experience the maturity level of each health-check type has the following order:
+
+1. Shallow or deep health-checks
+1. Probing
+1. Passive health-checks
 
 ## Probing and passive health-checks
+The reason why I think that these ones are the most advanced type of implementations is that these are the only ones which offer capturing the widest variety of issues in your code, including:
+
 - memory leaks
 - thread leaks
 - bugs
-- config issue
+- config issues
+- pool misconfigurations
 - deadlocks
 
-## Maturity level
-Shallow or deep -> probing -> passive
+The advantage of passive health check over probing, is that it does not require additional syinthetic traffic, which can cause unnnecessary noise and complexity.
 
 [liveness-readines]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 [disk-health]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/java/org/acme/quickstart/health/DiskHealthCheck.java

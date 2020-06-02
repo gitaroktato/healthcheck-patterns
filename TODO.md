@@ -66,3 +66,8 @@ https://www.envoyproxy.io/docs/envoy/v1.13.1/start/sandboxes/front_proxy#running
 
 # Slides
 [x] List of pool issues - mind map or word cloud?
+
+# Article
+[ ] Diagrams
+[ ] Code snippets
+[ ] Proofreading

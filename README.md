@@ -1,4 +1,4 @@
-# An overview on health check patterns
+# An overview of health check patterns
 Various health check pattern implementations in a sandbox.
 
 # Requirements

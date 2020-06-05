@@ -31,7 +31,7 @@ The simplest way to introduce fault-tolerance into any system is by introducing 
 
 # Anatomy of a helath check
 
-The coordination I was talking above can a container orchestrator or a load balancer for example. The role of these coordinators is to hide implementation details from the clients using your cluster of services and show them as a single component. In order to do this, they have to schedule workload to only those services, which are reported to be healthy. They ask each of the running process in the cluster about their health and take an action based on the response. These actions can be various. Some of them are
+The coordination I was talking above can be done by a container orchestrator or a load balancer for example. The role of these coordinators is to hide implementation details from the clients using your cluster of services and show them as a single logical unit. In order to do this, they have to schedule workload to only those services, which are reported to be healthy. They ask each of the running process in the cluster about their health and take an action based on the response. These actions can be various. Some of them are
 
 - Restarts
 - Alerting
@@ -39,7 +39,7 @@ The coordination I was talking above can a container orchestrator or a load bala
 - Scaling
 - Deployments
 
->>> TODO diagram from controller & actions.
+![anatomy-of-health-check](article/anatomy-of-health-check.jpg)
 
 # Various health check implementations
 
@@ -48,14 +48,16 @@ You can implement health checks in many-many ways and I'm going to show you an e
 ## About the examples
 You can find a sandbox with predefined health check implementations at https://github.com/gitaroktato/healthcheck-patterns. I'm going to use Envoy, Traefik, Prometheus, Grafana, Quarkus and minikube for represeinting the various pattners.
 
+![architecture](article/architecture.jpg)
+
 # No health checks
 No health checks? No problem! At least your implementation is not misleading. But can we configure at least someting useful for these services as well?
 
 ## Restarts
-The good news is that you can still rely on your container orchestrator if you've configured your container properly. Kubernetes restarts them if they stop, but it will happen only if your crashed process is also causing its container to exit. 
+The good news is that you can still rely on your container orchestrator if you've configured your container properly. Kubernetes restarts processes if they stop, but it will happen only if your crashed process is also causing its container to exit. In the deployments you can define the number of [desired replicas][kube-desired-replicas] and the orchestrator will automatically start new containers if needed. This mechanism works without any [liveness/readiness probe][liveness-readiness-example]
 
 ## Alerts
-You can still set up alerts based on the type of HTTP responses your load balancer sees, if you're using L7 load balancing. Unfortunately both with Envoy and Traefik it's not possible in-case of a TCP load balancer, because the lack of interpretation of the HTTP response codes. I used these two PromQL queries and configured an alert if the error rate for a given service got higher than a specified threshold.
+You can still set up alerts based on the type of HTTP responses your load balancer sees if you're using L7 load balancing. Unfortunately both with Envoy and Traefik it's not possible in-case of a TCP load balancer, because the lack of interpretation of the HTTP response codes. I used these two PromQL queries and configured an alert if the error rate for a given service got higher than a specified threshold.
 
 ```
 sum(rate(envoy_cluster_upstream_rq_xx{envoy_response_code_class="5"}[$interval])) / 
@@ -66,13 +68,19 @@ sum(rate(envoy_cluster_upstream_rq_xx[$interval]))
 sum(rate(traefik_entrypoint_requests_total{code=~"5.."}[$interval])) / 
 sum(rate(traefik_entrypoint_requests_total[$interval]))
 ```
+![failure-rate](article/failure-rate.png)
 
-One thing that's important to mention here, is that in many cases when a dependency (e.g. the database) is not available the response rate of the service drops. This causes spikes in the queries above, which are unseen for the predefined `$interval` because the previous higher rate of successful response. Below you can find two samples from the same time period with two different intervals. You can see that the spike is unseen if the duration of the timeout of the dependent service is less than the predefined interval. You can use it for your advantage to avoid alerts for intermittent outages which are not worth act upon (at-least not in the middle of the night).
+One thing that's important to mention here, is that in many cases when a dependency (e.g. the database) is not available the response rate of the service drops. This causes spikes in the queries above, which are unseen for the predefined `$interval` because the previous higher rate of successful response. Below you can find two samples from the same time period with two different intervals. You can see that the spike is unseen if the outage of the dependent service is shorter than the predefined interval. You can use it for your advantage to avoid alerts for intermittent outages which are not worth act upon (at-least not in the middle of the night).
 
-# TODO images
+|5 minute interval| 1 minute interval|
+|-----------------|------------------|
+|![failure-rate-alert-5m](article/failure-rate-alert-5m.png)|![failure-rate-alert-1m](article/failure-rate-alert-1m.png)|
 
 ## Deployments & Traffic Shaping
 I found no options to coordinate deployments and traffic shaping if you don't have a health check implementation in-place. So, you need to advance to the next level of health checks if you plan to improve these two activities.
+
+## Avoidalbe failures
+>>> TODO???
 
 # Shallow Health Checks
 Shallow health checks usually just verify if the HTTP pool is capable of providing some kind-of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios it makes sense to do a bit more than that and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in-case there's a need to write to local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to file system. And there's no guarantee that write will succeed. If you're out of i-nodes, your log rotation can still fail and can lead to unwanted consequences. An exameple HTTP response of such implementation can be found [in my code][disk-health].
@@ -117,6 +125,31 @@ If we're concerned about I/O operations, including disk free space in our health
 
 In my sandbox here's the [liveness and readiness probe configuration][liveness-readiness-example] so you can try different scenarios by yourself.
 
+```
+...
+        livenessProbe:
+          httpGet:
+            path: /application/health/live
+            port: http
+          failureThreshold: 2
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /application/health/ready
+            port: http
+          failureThreshold: 2
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        startupProbe:
+          httpGet:
+            path: /application/health
+            port: http
+          failureThreshold: 3
+          periodSeconds: 5
+...
+```
+
 ## Traffic shaping
 The most common way of using health checks is to integrate them with load balancers, so they can route traffic to only healthy instances. But what should we do in cases, when the database is not accessible from the service's point of view? In this scenario they will still retrieve workload and probably fail when trying to write to the database. We have 3 different options that offer some resolution:
 
@@ -133,6 +166,8 @@ The same mechanism can be applied for creating alerts as before. Additionally, y
 envoy_cluster_health_check_healthy{envoy_cluster_name="application"} /
 max_over_time(envoy_cluster_membership_total{envoy_cluster_name="application"}[1d])
 ```
+
+![envoy-health-alert](article/envoy-health-alert.png)
 
 Unfortunately Traefik is not exposing these metrics so it's not available in every load balancer.
 
@@ -220,7 +255,7 @@ If you're using Spring you can even use the [`forward:`][spring-forward] prefix 
 How can we take this to the next level? Well, simply said there's no need to verify things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health? This is the main concept of passive health checking. Unfortunately I've not found any support for these kind-of health reporting in the application frameworks I'm familiar with, so I had to craft my own. You can find the implementation in the [MeteringHealthCheck][MeteringHealthCheck] class. I'm using the same [meters][MeteringHealthCheck.incrementAndGetFailed] as in the [controller class][MongoResource] I'm wishing to inspect. When the failure rate is [higher than the configured threshold][MeteringHealthCheck.failure-threshold], I report the service as unhealthy.
 
 ```
-## TODO
+>>> TODO
 ```
 
 There are some additional things to note here. It does not make sense to remove the service forever, so it's better to include a [time limit][MeteringHealthCheck.maxEvictionSeconds] for the removal. After a while you would like to give a chance to the service again to see if the situation is getting better. 
@@ -289,3 +324,4 @@ The advantage of passive health check over probing, is that it does not require 
 [MeteringHealthCheck.meteringHealthCheckEnabled]: https://github.com/gitaroktato/healthcheck-patterns/blob/5df3c0b0606ffa312a069f9c3d85aab08b665b08/application/src/main/java/org/acme/quickstart/health/MeteringHealthCheck.java#L19
 [Envoy.outlier-detection]: https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/outlier#arch-overview-outlier-detection
 [Envoy.outlier-metrics]: https://www.envoyproxy.io/docs/envoy/v1.13.1/configuration/upstream/cluster_manager/cluster_stats#outlier-detection-statistics
+[kube-desired-replicas]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/kubernetes/application.yaml#L6

@@ -34,7 +34,7 @@ scenarios:
       url: http://${BASE_URL}/application/hello/leak
       assert:
         - contains:
-          - "counter"
+          - "Hello"
           subject: body
 modules:
   jmeter:

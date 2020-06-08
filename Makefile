@@ -6,7 +6,7 @@ K8S_BASEDIR = $(APPLICATION_BASEDIR)/src/main/kubernetes
 SCENARIO = thread-leak-test
 # Envoy endpoint is 192.168.99.100:10000
 # Traefik endpoint is 192.168.99.100
-BASE_URL = 192.168.99.101:32675
+BASE_URL = 192.168.99.101:30838
 
 TAURUS_COMMAND = bzt \
 	-o settings.artifacts-dir=e2e/logs \

@@ -7,23 +7,25 @@ Many developers have some existing health check mechansim implemented. Especiall
 Good question! Especially we have to consider how far I can get away with postponing the implementation. The reasons for not having health checks can be various, like tight project deadlines, corporate politics or complex configurations of vendor specific hardware (I won't judge you). But you have to know, that just because your code seem static it doesn't mean that it's behaving the same way when running for a longer period. You're depending on a computer hardware, 3rd party libraries, dependencies manintaned by other teams and none of them are providing 100% guarantees. As a rule of thumb you can't build 100% reliable software on top of unreliable components. Your service is going to fail shortly after your first release to production. And if it does, you have to detect it somehow. We all agree that it's better to do it before end-users do.
 
 ## Types of failures
->>> TODO do we need this section???
 The typical failures in a running Java application are the following:
 
 ### Bugs
 Caused by every developer just by the nature of coding. In average this is a [few bugs per 1000 lines of code][code-complete-bugs].
 
 ### Memory leaks
-Memory leaks occur, when the garbage collector fails to recycle a specific area of the heap and this area gradually grows over time. The JVM process will just exit if it runs out of memory, but until that it causes  
+Memory leaks occur, when the garbage collector fails to recycle a specific area of the heap and this area gradually grows over time. The JVM process will just exit if it runs out of memory, but until that it causes increased number of GC pauses and lower performance over time. 
 
 ### Thread leaks
-If you don't close your resources or don't manage your threads properly, thread leak can occur. This will suddenly lead your JVM to a complete stall while the CPU is going to spin at 100%.
+If you don't close your resources or don't manage your own threads properly, thread leaks can occur. This will suddenly lead your JVM to a complete stall while the CPU is going to spin at 100%.
 
 ### Configuiration issues
-
-### Connection pool misconfigurations
+Configuration issues are scary, because they can be caught at the same environment they're referring to. This means that you'll face a production related configuration issue during production deployment and vice-versa. It doesn't matter if you have a nice test coverage and all kinds-of integration and performance tests in place. A misconfiguration can just simply destroy your attempt of rolling out a new release.
 
 ### Deadlocks
+The currenly used JVMs 
+
+### Connection pool misconfigurations
+If you don't review all your connection pool settings, you're risking that a connection pool will start causing failures. The consequences can be various, but usually end up as one of the failures listed above.
 
 ## Redundancy
 
@@ -79,8 +81,8 @@ One thing that's important to mention here, is that in many cases when a depende
 ## Deployments & Traffic Shaping
 I found no options to coordinate deployments and traffic shaping if you don't have a health check implementation in-place. So, you need to advance to the next level of health checks if you plan to improve these two activities.
 
-## Avoidalbe failures
-If your container orchestrator is doing the work properly then you're able to catch memory leaks when your JVM exits with OOME. In case of a thread leak you're not going to be so lucky: Transactions will just become slower and slower until they completely stall. You can try to put an alert on a percentile of the response times to catch if anything goes wrong, but even in this case resolution needs a manual intervention.
+## Detectable failures
+If your container orchestrator is doing the work properly then you're able to catch memory leaks when your JVM exits with {{OutOfMemoryError}}. In case of a thread leak you're not going to be so lucky: Transactions will just become slower and slower until they completely stall. You can try to put an alert on a percentile of the response times to catch if anything goes wrong, but even in this case resolution needs a manual intervention. Waiting with a thread or a memory leak to eventualy kill the JVM is going to take a long time and will cause a great amount of harm for your downstream and upstream calls until it finally happen. It just don't worth the risk at all.
 
 # Shallow Health Checks
 Shallow health checks usually just verify if the HTTP pool is capable of providing some kind-of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios it makes sense to do a bit more than that and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in-case there's a need to write to local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to file system. And there's no guarantee that write will succeed. If you're out of inodes, your log rotation can still fail and can lead to unwanted consequences. 
@@ -153,7 +155,10 @@ In my sandbox here's the [liveness and readiness probe configuration][liveness-r
 ```
 
 ## Traffic shaping
-The most common way of using health checks is to integrate them with load balancers, so they can route traffic to only healthy instances. But what should we do in cases, when the database is not accessible from the service's point of view? In this scenario they will still retrieve workload and probably fail when trying to write to the database. We have 3 different options that offer some resolution:
+The most common way of using health checks is to integrate them with load balancers, so they can route traffic to only healthy instances. But what should we do in cases, when the database is not accessible from the service's point of view? 
+>>> TODO diagram
+
+In this scenario they will still retrieve workload and probably fail when trying to write to the database. We have 3 different options that offer some resolution:
 
 - Try to store the request in the service itself and retry later
 - Fail fast and let the caller do the retry
@@ -175,6 +180,9 @@ Unfortunately Traefik is not exposing these metrics so it's not available in eve
 
 ## Deployments
 Shallow health checks don't expose the lower layers of your application, so it can't be used to catch configuration issues during deployment. But with deep health check, the case is different.
+
+## Detectable failures
+Shallow health check includes us a few additional aspects of the running process. We can verify if the HTTP pool is working properly and include some local resources, like disk space. This enalbes to catch memory and thread leaks faster. Pay attention to the timeout setting of your coordinator, who's responisble to do the corresponding action. The most valuable actions are restarts in this case, so make sure, that your container orchestrator has [good timeout settings][kube-liveness-timeout] for the livenes probes. 
 
 # Deep health checks
 Deep health check tries to include every integration point in your application. If you're using Spring Boot, you will have many [automatically configured health indicators][spring-boot-health-indicators] availalbe with Actuator. Here's an example on how health check will look in the sandbox application:
@@ -298,14 +306,7 @@ Based on my experience the maturity level of each health-check type has the foll
 1. Passive health-checks
 
 ## Probing and passive health-checks
-The reason why I think that these ones are the most advanced type of implementations is that these are the only ones which offer capturing the widest variety of issues in your code, including:
-
-- memory leaks
-- thread leaks
-- bugs
-- config issues
-- pool misconfigurations
-- deadlocks
+The reason why I think that these ones are the most advanced type of implementations is that these are the only ones which offer capturing the widest variety of issues in your code.
 
 The advantage of passive health check over probing, is that it does not require additional syinthetic traffic, which can cause unnnecessary noise and complexity.
 
@@ -327,3 +328,4 @@ The advantage of passive health check over probing, is that it does not require 
 [Envoy.outlier-detection]: https://www.envoyproxy.io/docs/envoy/v1.13.1/intro/arch_overview/upstream/outlier#arch-overview-outlier-detection
 [Envoy.outlier-metrics]: https://www.envoyproxy.io/docs/envoy/v1.13.1/configuration/upstream/cluster_manager/cluster_stats#outlier-detection-statistics
 [kube-desired-replicas]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/kubernetes/application.yaml#L6
+[kube-liveness-timeout]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes

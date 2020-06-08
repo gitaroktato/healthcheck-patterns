@@ -11,13 +11,13 @@ Good question! Especially we have to consider how far I can get away with postpo
 The typical failures in a running Java application are the following:
 
 ### Bugs
-Caused by every developer just by the nature of coding. In average this is a [few bugs per 1000 lines of code][code-complete-bugs]. 
+Caused by every developer just by the nature of coding. In average this is a [few bugs per 1000 lines of code][code-complete-bugs].
 
 ### Memory leaks
 Memory leaks occur, when the garbage collector fails to recycle a specific area of the heap and this area gradually grows over time. The JVM process will just exit if it runs out of memory, but until that it causes  
 
-
 ### Thread leaks
+If you don't close your resources or don't manage your threads properly, thread leak can occur. This will suddenly lead your JVM to a complete stall while the CPU is going to spin at 100%.
 
 ### Configuiration issues
 
@@ -80,10 +80,12 @@ One thing that's important to mention here, is that in many cases when a depende
 I found no options to coordinate deployments and traffic shaping if you don't have a health check implementation in-place. So, you need to advance to the next level of health checks if you plan to improve these two activities.
 
 ## Avoidalbe failures
->>> TODO???
+If your container orchestrator is doing the work properly then you're able to catch memory leaks when your JVM exits with OOME. In case of a thread leak you're not going to be so lucky: Transactions will just become slower and slower until they completely stall. You can try to put an alert on a percentile of the response times to catch if anything goes wrong, but even in this case resolution needs a manual intervention.
 
 # Shallow Health Checks
-Shallow health checks usually just verify if the HTTP pool is capable of providing some kind-of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios it makes sense to do a bit more than that and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in-case there's a need to write to local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to file system. And there's no guarantee that write will succeed. If you're out of i-nodes, your log rotation can still fail and can lead to unwanted consequences. An exameple HTTP response of such implementation can be found [in my code][disk-health].
+Shallow health checks usually just verify if the HTTP pool is capable of providing some kind-of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios it makes sense to do a bit more than that and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in-case there's a need to write to local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to file system. And there's no guarantee that write will succeed. If you're out of inodes, your log rotation can still fail and can lead to unwanted consequences. 
+
+I've create my own implementation because Quarkus had no default disk health checking. This can be found [in my code over here][disk-health]. An exampele HTTP response of my disk healt check can be found below. 
 
 ```
 {

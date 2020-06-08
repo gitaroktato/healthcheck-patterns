@@ -27,6 +27,15 @@ scenarios:
         - contains:
           - "counter"
           subject: body
+  thread-leak-test:
+    requests:
+    - label: hello-leaky-get
+      method: GET
+      url: http://${BASE_URL}/application/hello/leak
+      assert:
+        - contains:
+          - "counter"
+          subject: body
 modules:
   jmeter:
     gui: false

@@ -156,7 +156,6 @@ In my sandbox here's the [liveness and readiness probe configuration][liveness-r
 
 ## Traffic shaping
 The most common way of using health checks is to integrate them with load balancers, so they can route traffic to only healthy instances. But what should we do in cases, when the database is not accessible from the service's point of view? 
->>> TODO diagram
 
 In this scenario they will still retrieve workload and probably fail when trying to write to the database. We have 3 different options that offer some resolution:
 
@@ -185,7 +184,7 @@ Shallow health checks don't expose the lower layers of your application, so it c
 Shallow health check includes us a few additional aspects of the running process. We can verify if the HTTP pool is working properly and include some local resources, like disk space. This enalbes to catch memory and thread leaks faster. Pay attention to the timeout setting of your coordinator, who's responisble to do the corresponding action. The most valuable actions are restarts in this case, so make sure, that your container orchestrator has [good timeout settings][kube-liveness-timeout] for the livenes probes. 
 
 # Deep health checks
-Deep health check tries to include every integration point in your application. If you're using Spring Boot, you will have many [automatically configured health indicators][spring-boot-health-indicators] availalbe with Actuator. Here's an example on how health check will look in the sandbox application:
+Deep health check tries to include the surrounding of your application. If you're using Spring Boot, you will have many [automatically configured health indicators][spring-boot-health-indicators] availalbe with Actuator. Here's an example on how a deepp health check will look in the sandbox application:
 
 ```
 {
@@ -204,7 +203,7 @@ Deep health check tries to include every integration point in your application. 
 
 ## Restarts
 
-It also makes sense to have multiple health check endpoints for the controlling logic. Just like Kubernetes does. This can lead to applying different actions for different failures. [Liveness, readiness and startup][liveness-readines] probes are good examples. Each control a specific aspect of the orchestration. In the sandbox implementation, by visiting the deployment YAML you can see that each probe is using a different endpoint.
+It makes sense to have multiple health check endpoints for the controlling logic. Just like Kubernetes does. This can lead to applying different actions for different failures. [Liveness, readiness and startup][liveness-readines] probes are good examples. Each control a specific aspect of the orchestration. In the sandbox implementation, by visiting the [deployment YAML][kubernetes/application.yaml] you can see that each probe is using a different endpoint.
 
 ```
 ...
@@ -239,14 +238,15 @@ So, what happens if I'm introducing a bug in my configuration? As long as the st
 kubectl rollout undo deployment.v1.apps/application -n test
 ```
 
-
 ## Traffic shaping
 Now, with deep health checks a workload will be assigned to a service only if its dependencies proven to be acceissible. For aggregates with multiple upstream dependencies, this means an all-or-nothing approach, which might be too restrictive. For services with just a database connection this only means additional pool validation. 
 
-## Connection pool issues
+### Connection pool issues
 What should we do in the case, when database dependency becomes inaccessible? Shoud the service report itself as healthy or unheatlhy? This can indicate at least two different problems: Either the connection pool experiencing hard times or the database has some issues. In the latter case most probably other instances will also report themselves as unhealthy and the load balancer can just go ahead and remove every instance from the fleet. In practice, usually they keep a certain traffic still flowing through, because simply it just does not make sense to totally stop serving requests. This can avoid a possible health-check related bug causing production outage. You should visit your load-balancing setting and set the upper limit of instances which can be removed. 
 
-## Deep health checks and other fault-tolerant patterns - Probing
+### Deep health checks and other fault-tolerant patterns - Probing
+![probing](article/fallback-synch.jpg)
+
 How should I keep my circuit breaker configuration in-sync with my health-check implementations? If my application offers stale data from local cache when the real one is not available, shoud I report the application healthy or unhealthy? I say, that these are the limitations of deep health-checks which cannot be solved so easily. The most convenient way of reducing your health check false positives is by sending a synthetic request every time it's queried. If you're reading a user from database, add a synthetic user and read real data. If you're writing to a Kafka topic, send a message with a value that will allow consumers to distinguish synthetic messages from real ones. 
 
 The drawback is that you need to filter out the snythetic traffing in your monitoring infrastructure. Also it can produce more overhead than usual healtcheck operations.
@@ -254,18 +254,49 @@ The drawback is that you need to filter out the snythetic traffing in your monit
 ### Implementing probing
 The only way you can mess up the implementation if the excution path of probing is different from the real one. Let's assume you're not calling through the same controller you use for busines operations and someone implements circuit breaking logic in that place. Your healt check won't pass through your circuit breaker logic.
 
-- If your load balancer allows setting a specifi payload of the health check you can call the real controller direclty.
+- If your load balancer allows setting a specific payload of the health check you can call the real controller direclty.
 - Otherwise you have to create the synthetic payload and forward your request to the original controller.
 
 In my [implementation][probing-custom-health] I chose to inject the controller and just include the result without any further interpretation in the heatlh-check class. It should be as simple as possible.
 
 If you're using Spring you can even use the [`forward:`][spring-forward] prefix to simplify the implementation even further.
 
-# Passive health checking
-How can we take this to the next level? Well, simply said there's no need to verify things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health? This is the main concept of passive health checking. Unfortunately I've not found any support for these kind-of health reporting in the application frameworks I'm familiar with, so I had to craft my own. You can find the implementation in the [MeteringHealthCheck][MeteringHealthCheck] class. I'm using the same [meters][MeteringHealthCheck.incrementAndGetFailed] as in the [controller class][MongoResource] I'm wishing to inspect. When the failure rate is [higher than the configured threshold][MeteringHealthCheck.failure-threshold], I report the service as unhealthy.
+Here's a sample of how it looks in my sandbox environment:
 
 ```
->>> TODO
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "Probing health check",
+            "status": "UP",
+            "data": {
+                "result": "{\"_id\": {\"$oid\": \"cafebabe0123456789012345\"}, \"counter\": 2}",
+                "enabled": true
+            }
+        }
+    ]
+}
+```
+
+# Passive health checking
+How can we take this to the next level? Well, simply said there's no need to verify things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health? This is the main concept of passive health checking. Unfortunately I've not found any support for these kind-of health reporting in the application frameworks I'm familiar with, so I had to craft my own. You can find the implementation in the [MeteringHealthCheck][MeteringHealthCheck] class. I'm using the same [meters][MeteringHealthCheck.incrementAndGetFailed] as in the [controller class][MongoResource] I'm wishing to inspect. When the failure rate is [higher than the configured threshold][MeteringHealthCheck.failure-threshold], I report the service as unhealthy. Down below is a sample of how the health check looks like, when it's queried.
+
+```
+{
+    "status": "UP",
+    "checks": [
+        {
+            "name": "Metering health check",
+            "status": "UP",
+            "data": {
+                "last call since(ms)": 4434,
+                "failed ratio": "0.01",
+                "enabled": true
+            }
+        }
+    ]
+}
 ```
 
 There are some additional things to note here. It does not make sense to remove the service forever, so it's better to include a [time limit][MeteringHealthCheck.maxEvictionSeconds] for the removal. After a while you would like to give a chance to the service again to see if the situation is getting better. 
@@ -284,10 +315,13 @@ One of the great news is that Envoy offers this functionality by default, named 
 
 ## Alerting
 The following PromQL query was able to show the propotion of the evicted instances, when using passive health checks.
+
 ```
 envoy_cluster_outlier_detection_ejections_active{envoy_cluster_name="application"} \
 max_over_time(envoy_cluster_membership_total{envoy_cluster_name="application"}[1d])
 ```
+
+![outlier-detection](article/outlier-detection.png)
 
 ## Deployments
 For controlling deployments you need to interact with the dependent resources actively. Passive health check is not capable of doing that, so you're better off using probing or simple deep health checks. 
@@ -296,7 +330,6 @@ For controlling deployments you need to interact with the dependent resources ac
 Health checks are just one aspect of fault tolerance. There are many other fault-tolerant patterns availalbe. I'm not even sure if they're the oldest ones, but I think they're the most known. Getting your heatlh-checks rigt bring you closer for a more resilient setup of your microservices. 
 
 As a general rule, make sure you're actively monitoring every layer of your architecture. It will speed up your root cause analysis drastically. Imagine having a deep health check alert showing that the database is down. Having metrics on the database level and shown on the same dashboard will immediatly help you on having a better understanding on the problem.
-
 
 ## Maturity level
 Based on my experience the maturity level of each health-check type has the following order:
@@ -329,3 +362,4 @@ The advantage of passive health check over probing, is that it does not require 
 [Envoy.outlier-metrics]: https://www.envoyproxy.io/docs/envoy/v1.13.1/configuration/upstream/cluster_manager/cluster_stats#outlier-detection-statistics
 [kube-desired-replicas]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/kubernetes/application.yaml#L6
 [kube-liveness-timeout]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+[kubernetes/application.yaml]: https://github.com/gitaroktato/healthcheck-patterns/blob/master/application/src/main/kubernetes/application.yaml#L27

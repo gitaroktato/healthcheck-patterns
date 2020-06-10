@@ -3,10 +3,10 @@ DOCKER_BASEDIR = $(APPLICATION_BASEDIR)/src/main/docker
 DOCKER_IMAGE_VERSION = 1.0
 K8S_BASEDIR = $(APPLICATION_BASEDIR)/src/main/kubernetes
 # Values are: hello-test, mongo-test, thread-leak-test
-SCENARIO = thread-leak-test
+SCENARIO = mongo-test
 # Envoy endpoint is 192.168.99.100:10000
 # Traefik endpoint is 192.168.99.100
-BASE_URL = 192.168.99.101:30838
+BASE_URL = 192.168.99.100:10000
 
 TAURUS_COMMAND = bzt \
 	-o settings.artifacts-dir=e2e/logs \

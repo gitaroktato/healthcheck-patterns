@@ -72,7 +72,7 @@ sum(rate(traefik_entrypoint_requests_total[$interval]))
 ```
 ![failure-rate](article/failure-rate.png)
 
-One thing that's important to mention here, is that in many cases when a dependency (e.g. the database) is not available the response rate of the service drops. This causes spikes in the queries above, which are unseen for the predefined `$interval` because the previous higher rate of successful response. Below you can find two samples from the same time period with two different intervals. You can see that the spike is unseen if the outage of the dependent service is shorter than the predefined interval. You can use it for your advantage to avoid alerts for intermittent outages which are not worth act upon (at-least not in the middle of the night).
+One thing that's important to mention here, is that in many cases when a dependency (e.g. the database) is not available the response rate of the service drops. This causes spikes in the queries above, which are unseen for the predefined `$interval` because of the previous higher rate of successful responses. Below you can find two samples from the same period with two different intervals. You can see that the spike is unseen if the outage of the dependent service is shorter than the predefined interval. You can use it for your advantage to avoid alerts for intermittent outages which are not worth act upon (at least not in the middle of the night).
 
 |5 minute interval| 1 minute interval|
 |-----------------|------------------|
@@ -82,10 +82,10 @@ One thing that's important to mention here, is that in many cases when a depende
 I found no options to coordinate deployments and traffic shaping if you don't have a health check implementation in-place. So, you need to advance to the next level of health checks if you plan to improve these two activities.
 
 ## Detectable failures
-If your container orchestrator is doing the work properly then you're able to catch memory leaks when your JVM exits with {{OutOfMemoryError}}. In case of a thread leak you're not going to be so lucky: Transactions will just become slower and slower until they completely stall. You can try to put an alert on a percentile of the response times to catch if anything goes wrong, but even in this case resolution needs a manual intervention. Waiting with a thread or a memory leak to eventualy kill the JVM is going to take a long time and will cause a great amount of harm for your downstream and upstream calls until it finally happen. It just don't worth the risk at all.
+If your container orchestrator is doing the work properly then you're able to catch memory leaks when your JVM exits with `OutOfMemoryError`. In case of a thread leak, you're not going to be so lucky: Transactions will just become slower and slower until they completely stall. You can try to put an alert on a percentile of the response times to catch if anything goes wrong, but even in this case resolution needs manual intervention. Waiting with a thread or a memory leak to eventually kill the JVM is going to take a long time and will cause a great amount of harm for your downstream and upstream calls until it finally happens. It just doesn't worth the risk at all.
 
 # Shallow Health Checks
-Shallow health checks usually just verify if the HTTP pool is capable of providing some kind-of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios it makes sense to do a bit more than that and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in-case there's a need to write to local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to file system. And there's no guarantee that write will succeed. If you're out of inodes, your log rotation can still fail and can lead to unwanted consequences. 
+Shallow health checks usually just verify if the HTTP pool is capable of providing some kind of response. They do this by returning a static content or empty page with an HTTP 2xx response code. In some scenarios, it makes sense to do a bit more than that and check the amount of free disk space under the service. If it falls under a predefined threshold, the service can report itself as unhealthy. This provides some additional information in case there's a need to write to the local filesystem (because of logging), but far from being perfect: Checking free disk space is not the same as trying to write to the file system. And there's no guarantee that write will succeed. If you're out of inodes, your log rotation can still fail and can lead to unwanted consequences.
 
 I've create my own implementation because Quarkus had no default disk health checking. This can be found [in my code over here][disk-health]. An exampele HTTP response of my disk healt check can be found below. 
 
@@ -279,6 +279,9 @@ Here's a sample of how it looks in my sandbox environment:
 }
 ```
 
+## Detectable failures
+>>> TODO
+
 # Passive health checking
 How can we take this to the next level? Well, simply said there's no need to verify things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health? This is the main concept of passive health checking. Unfortunately I've not found any support for these kind-of health reporting in the application frameworks I'm familiar with, so I had to craft my own. You can find the implementation in the [MeteringHealthCheck][MeteringHealthCheck] class. I'm using the same [meters][MeteringHealthCheck.incrementAndGetFailed] as in the [controller class][MongoResource] I'm wishing to inspect. When the failure rate is [higher than the configured threshold][MeteringHealthCheck.failure-threshold], I report the service as unhealthy. Down below is a sample of how the health check looks like, when it's queried.
 
@@ -325,6 +328,9 @@ max_over_time(envoy_cluster_membership_total{envoy_cluster_name="application"}[1
 
 ## Deployments
 For controlling deployments you need to interact with the dependent resources actively. Passive health check is not capable of doing that, so you're better off using probing or simple deep health checks. 
+
+## Detectable failures
+>>> TODO
 
 # Summary
 Health checks are just one aspect of fault tolerance. There are many other fault-tolerant patterns availalbe. I'm not even sure if they're the oldest ones, but I think they're the most known. Getting your heatlh-checks rigt bring you closer for a more resilient setup of your microservices. 

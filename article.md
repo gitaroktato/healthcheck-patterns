@@ -1,6 +1,6 @@
 # An overview of health check patterns
 
-Many developers have some existing health check mechansim implemented. Especially nowadays in the "microservices era" of backend development. I really hope that you also do. Whenever you have something simple that just throws a HTTP 200 back at the caller or a more complex logic, it's good to be aware of the pros & cons of different health check implementations. In this article I'm going to go through each type of health checks and investiagate what kind of  issues can be resolved with each of them.
+Many developers have some existing health check mechanism implemented. Especially nowadays in the "microservices era" of backend development. I really hope that you also do. Whenever you have something simple that just throws an HTTP 200 back at the caller or more complex logic, it's good to be aware of the pros & cons of different health check implementations. In this article, I'm going to go through each type of health check and investigate what kind of issues can be resolved with each of them.
 
 # Why do we need health checks at all?
 
@@ -13,23 +13,23 @@ The typical failures in a running Java application are the following:
 Caused by every developer just by the nature of coding. In average this is a [few bugs per 1000 lines of code][code-complete-bugs].
 
 ### Memory leaks
-Memory leaks occur, when the garbage collector fails to recycle a specific area of the heap and this area gradually grows over time. The JVM process will just exit if it runs out of memory, but until that it causes increased number of GC pauses and lower performance over time. 
+Memory leaks occur when the garbage collector fails to recycle a specific area of the heap and this area gradually grows over time. The JVM process will just exit if it runs out of memory, but until that it causes an increased number of GC pauses and lower performance over time. 
 
 ### Thread leaks
 If you don't close your resources or don't manage your own threads properly, thread leaks can occur. This will suddenly lead your JVM to a complete stall while the CPU is going to spin at 100%.
 
 ### Configuiration issues
-Configuration issues are scary, because they can be caught at the same environment they're referring to. This means that you'll face a production related configuration issue during production deployment and vice-versa. It doesn't matter if you have a nice test coverage and all kinds-of integration and performance tests in place. A misconfiguration can just simply destroy your attempt of rolling out a new release.
+Configuration issues are scary because they can be caught in the same environment they're referring to. This means that you'll face a production-related configuration issue during production deployment and vice-versa. It doesn't matter if you have nice test coverage and all kinds-of integration and performance tests in place. A misconfiguration can just simply destroy your attempt of rolling out a new release.
 
 ### Deadlocks
-The currenly used JVMs 
+The JVMs I've used does not offer deadlock detection. This means, that threads hanging in deadlock will just wait forever until the JVM exits. 
 
 ### Connection pool misconfigurations
 If you don't review all your connection pool settings, you're risking that a connection pool will start causing failures. The consequences can be various, but usually end up as one of the failures listed above.
 
 ## Redundancy
 
-The simplest way to introduce fault-tolerance into any system is by introducing redundancy. You can make your data redundant by copying them over several times and hiding "bad bytes", like a RAID configuration does with multiple hard drives. Similarly, you can also make a database time redundant, by holding and serving multiple versions of the same record. For services what works best is making them process redundant. Keeping multiple processes running at the same time, so if one of them misbehaves others can take over the workload. Of course this only works if you have some kind-of coordination in place. Usually this is done by using health checks.
+The simplest way to introduce fault-tolerance into any system is by introducing redundancy. You can make your data redundant by copying them over several times and hiding "bad bytes" as a RAID configuration does with multiple hard drives. Similarly, you can also make a database time redundant, by holding and serving multiple versions of the same record. For services what works best is making the process redundant. Keeping multiple processes running at the same time, so if one of them misbehaves others can take over the workload. Of course, this only works if you have some kind-of coordination in place. Usually, this is done by using health checks.
 
 # Anatomy of a helath check
 
@@ -59,7 +59,7 @@ No health checks? No problem! At least your implementation is not misleading. Bu
 The good news is that you can still rely on your container orchestrator if you've configured your container properly. Kubernetes restarts processes if they stop, but it will happen only if your crashed process is also causing its container to exit. In the deployments you can define the number of [desired replicas][kube-desired-replicas] and the orchestrator will automatically start new containers if needed. This mechanism works without any [liveness/readiness probe][liveness-readiness-example]
 
 ## Alerts
-You can still set up alerts based on the type of HTTP responses your load balancer sees if you're using L7 load balancing. Unfortunately both with Envoy and Traefik it's not possible in-case of a TCP load balancer, because the lack of interpretation of the HTTP response codes. I used these two PromQL queries and configured an alert if the error rate for a given service got higher than a specified threshold.
+You can still set up alerts based on the type of HTTP responses your load balancer sees if you're using L7 load balancing. Unfortunately both with Envoy and Traefik it's not possible in-case of a TCP load balancer, because of the lack of interpretation of the HTTP response codes. I used these two PromQL queries and configured an alert if the error rate for a given service got higher than a specified threshold.
 
 ```
 sum(rate(envoy_cluster_upstream_rq_xx{envoy_response_code_class="5"}[$interval])) / 
@@ -242,12 +242,12 @@ kubectl rollout undo deployment.v1.apps/application -n test
 Now, with deep health checks a workload will be assigned to a service only if its dependencies proven to be acceissible. For aggregates with multiple upstream dependencies, this means an all-or-nothing approach, which might be too restrictive. For services with just a database connection this only means additional pool validation. 
 
 ### Connection pool issues
-What should we do in the case, when database dependency becomes inaccessible? Shoud the service report itself as healthy or unheatlhy? This can indicate at least two different problems: Either the connection pool experiencing hard times or the database has some issues. In the latter case most probably other instances will also report themselves as unhealthy and the load balancer can just go ahead and remove every instance from the fleet. In practice, usually they keep a certain traffic still flowing through, because simply it just does not make sense to totally stop serving requests. This can avoid a possible health-check related bug causing production outage. You should visit your load-balancing setting and set the upper limit of instances which can be removed. 
+What should we do in the case, when database dependency becomes inaccessible? Shoud the service report itself as healthy or unheatlhy? This can indicate at least two different problems: Either the connection pool experiencing hard times or the database has some issues. In the latter case most probably other instances will also report themselves as unhealthy and the load balancer can just go ahead and remove every instance from the fleet. In practice, usually they keep a certain traffic still flowing through, because simply it just does not make sense to totally stop serving requests. This can avoid a possible health check related bug causing production outage. You should visit your load-balancing setting and set the upper limit of instances which can be removed. 
 
 ### Deep health checks and other fault-tolerant patterns - Probing
 ![probing](article/fallback-synch.jpg)
 
-How should I keep my circuit breaker configuration in-sync with my health-check implementations? If my application offers stale data from local cache when the real one is not available, shoud I report the application healthy or unhealthy? I say, that these are the limitations of deep health-checks which cannot be solved so easily. The most convenient way of reducing your health check false positives is by sending a synthetic request every time it's queried. If you're reading a user from database, add a synthetic user and read real data. If you're writing to a Kafka topic, send a message with a value that will allow consumers to distinguish synthetic messages from real ones. 
+How should I keep my circuit breaker configuration in-sync with my health check implementations? If my application offers stale data from local cache when the real one is not available, shoud I report the application healthy or unhealthy? I say, that these are the limitations of deep health checks which cannot be solved so easily. The most convenient way of reducing your health check false positives is by sending a synthetic request every time it's queried. If you're reading a user from database, add a synthetic user and read real data. If you're writing to a Kafka topic, send a message with a value that will allow consumers to distinguish synthetic messages from real ones. 
 
 The drawback is that you need to filter out the snythetic traffing in your monitoring infrastructure. Also it can produce more overhead than usual healtcheck operations.
 
@@ -332,13 +332,13 @@ Health checks are just one aspect of fault tolerance. There are many other fault
 As a general rule, make sure you're actively monitoring every layer of your architecture. It will speed up your root cause analysis drastically. Imagine having a deep health check alert showing that the database is down. Having metrics on the database level and shown on the same dashboard will immediatly help you on having a better understanding on the problem.
 
 ## Maturity level
-Based on my experience the maturity level of each health-check type has the following order:
+Based on my experience the maturity level of each health check type has the following order:
 
-1. Shallow or deep health-checks
+1. Shallow or deep health checks
 1. Probing
-1. Passive health-checks
+1. Passive health checks
 
-## Probing and passive health-checks
+## Probing and passive health checks
 The reason why I think that these ones are the most advanced type of implementations is that these are the only ones which offer capturing the widest variety of issues in your code.
 
 The advantage of passive health check over probing, is that it does not require additional syinthetic traffic, which can cause unnnecessary noise and complexity.

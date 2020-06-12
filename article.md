@@ -280,7 +280,9 @@ Here's a sample of how it looks in my sandbox environment:
 ```
 
 ## Detectable failures
->>> TODO
+If we validate the connection pools during each health check the coordinator is going to detect connection pool misconfigurations. Because we also inspect HTTP pools as with the previous pattern, we have a good chance of still catching thread and memory leaks. The drawback of this method is that it's hard to synchronize with other fault-tolerant patterns, like fallbacks and circuit breakers. If we plan to implement any of these, we're better off with probing.
+
+By the aid of probing it's possible to run a synthetic request through all the layer of the applications. This allows catching of every type of failure, including memory and thread leaks, pool misconfigurations, bugs, configuration issues and deadlocks.
 
 # Passive health checking
 How can we take this to the next level? Well, simply said there's no need to verify things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health? This is the main concept of passive health checking. Unfortunately I've not found any support for these kind-of health reporting in the application frameworks I'm familiar with, so I had to craft my own. You can find the implementation in the [MeteringHealthCheck][MeteringHealthCheck] class. I'm using the same [meters][MeteringHealthCheck.incrementAndGetFailed] as in the [controller class][MongoResource] I'm wishing to inspect. When the failure rate is [higher than the configured threshold][MeteringHealthCheck.failure-threshold], I report the service as unhealthy. Down below is a sample of how the health check looks like, when it's queried.

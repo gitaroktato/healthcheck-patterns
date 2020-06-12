@@ -282,7 +282,7 @@ Here's a sample of how it looks in my sandbox environment:
 ## Detectable failures
 If we validate the connection pools during each health check the coordinator is going to detect connection pool misconfigurations. Because we also inspect HTTP pools as with the previous pattern, we have a good chance of still catching thread and memory leaks. The drawback of this method is that it's hard to synchronize with other fault-tolerant patterns, like fallbacks and circuit breakers. If we plan to implement any of these, we're better off with probing.
 
-By the aid of probing it's possible to run a synthetic request through all the layer of the applications. This allows catching of every type of failure, including memory and thread leaks, pool misconfigurations, bugs, configuration issues and deadlocks.
+By the aid of probing it's possible to run a synthetic request through all the layer of the applications. This allows catching of every type of failure in every layer, including memory and thread leaks, pool misconfigurations, bugs, configuration issues and deadlocks. Think of it as a tiny smoke test that runs periodically.
 
 # Passive health checking
 How can we take this to the next level? Well, simply said there's no need to verify things that are already happening: Why don't we use the existing request flow to our aid and use its results to determine service health? This is the main concept of passive health checking. Unfortunately I've not found any support for these kind-of health reporting in the application frameworks I'm familiar with, so I had to craft my own. You can find the implementation in the [MeteringHealthCheck][MeteringHealthCheck] class. I'm using the same [meters][MeteringHealthCheck.incrementAndGetFailed] as in the [controller class][MongoResource] I'm wishing to inspect. When the failure rate is [higher than the configured threshold][MeteringHealthCheck.failure-threshold], I report the service as unhealthy. Down below is a sample of how the health check looks like, when it's queried.
@@ -332,7 +332,7 @@ max_over_time(envoy_cluster_membership_total{envoy_cluster_name="application"}[1
 For controlling deployments you need to interact with the dependent resources actively. Passive health check is not capable of doing that, so you're better off using probing or simple deep health checks. 
 
 ## Detectable failures
->>> TODO
+The provided benefits are the same as using probing. Again, the coordinator is going to detect all kind-of failures, including memory & thread leaks, connection and configuration issues, bugs, and deadlocks. And you won't need to keep the other fault-tolerant implementations in-sync with the health check mechanism.
 
 # Summary
 Health checks are just one aspect of fault tolerance. There are many other fault-tolerant patterns availalbe. I'm not even sure if they're the oldest ones, but I think they're the most known. Getting your heatlh-checks rigt bring you closer for a more resilient setup of your microservices. 
@@ -349,7 +349,9 @@ Based on my experience the maturity level of each health check type has the foll
 ## Probing and passive health checks
 The reason why I think that these ones are the most advanced type of implementations is that these are the only ones which offer capturing the widest variety of issues in your code.
 
-The advantage of passive health check over probing, is that it does not require additional syinthetic traffic, which can cause unnnecessary noise and complexity.
+The advantage of passive health check over probing, is that it does not require additional synthetic traffic, which can cause unnnecessary noise and complexity.
+
+The most important advantage of probing over passive health checks, is that it is a lot easier to implement. Another advantage is that it does not require real traffic going through the service to determine the instance's current health. This is not available in some cases, like in the middle of a deployment.
 
 [code-complete-bugs]: https://amartester.blogspot.com/2007/04/bugs-per-lines-of-code.html
 [liveness-readines]: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/

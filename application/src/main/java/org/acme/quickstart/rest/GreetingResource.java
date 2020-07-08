@@ -13,4 +13,12 @@ public class GreetingResource {
     public String hello() {
         return "hello";
     }
+
+    @GET
+    @Path("/leak")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String getLeakyString() {
+        new Thread(() -> {while(true) {}}).start();
+        return "Hello leaking";
+    }
 }

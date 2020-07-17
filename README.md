@@ -34,6 +34,12 @@ You have to set the `BASE_URL` in the `Makefile` to te Kubernetes service endpoi
 
 To start & stop pods you'll need to use the script in `chaos-testing/whack-a-pod.sh`. It will look at pods flagged as `killable` and remove them from time-to-time.
 
+# Interacting with the application
+You can use the following endpoints for interacting with the deployed application.
+`HOST:PORT/application/hello` - will return static response
+`HOST:PORT/application/hello` - will increment a counter in the deployed MongoDB database and change custom metrics
+`HOST:PORT/application/metrics` - shows metrics endpoint
+
 # Cleanup
 Remove deployments from `test` namespace and remove containers from compose files
 ```

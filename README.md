@@ -36,8 +36,11 @@ To start & stop pods you'll need to use the script in `chaos-testing/whack-a-pod
 
 # Interacting with the application
 You can use the following endpoints for interacting with the deployed application.
+
 `HOST:PORT/application/hello` - will return static response
+
 `HOST:PORT/application/hello` - will increment a counter in the deployed MongoDB database and change custom metrics
+
 `HOST:PORT/application/metrics` - shows metrics endpoint
 
 # Cleanup

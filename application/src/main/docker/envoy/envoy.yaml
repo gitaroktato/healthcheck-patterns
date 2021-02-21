@@ -6,6 +6,15 @@ static_resources:
         port_value: 10000
     filter_chains:
     - filters:
+      - name: envoy.filters.network.local_ratelimit
+        typed_config:
+          "@type": type.googleapis.com/envoy.config.filter.network.local_rate_limit.v2alpha.LocalRateLimit
+          stat_prefix: local_rate_limiter
+          token_bucket:
+            max_tokens: 1000
+            tokens_per_fill: 100
+            fill_interval: 
+              seconds: 1
       - name: envoy.http_connection_manager
         typed_config:
           "@type": type.googleapis.com/envoy.config.filter.network.http_connection_manager.v2.HttpConnectionManager

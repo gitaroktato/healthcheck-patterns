@@ -33,6 +33,10 @@ compose:
 	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml up -d --force --build; \
 	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml up -d --force
 
+compose-stop:
+	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml stop; \
+	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml stop
+
 clean: maven-clean
 	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml down --remove-orphans; \
 	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml down --remove-orphans; \

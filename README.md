@@ -8,7 +8,8 @@ You need to install the following
 - [bzt](https://gettaurus.org/docs/Installation/)
 
 # Running the examples
-To build the project and start up the compose files you have to execute the following command:
+Open the Makefile and change `DOCKER` and `KUBECTL` commands to according to your machine.
+To build the project and start the compose files you have to execute the following command:
 ```
 make docker compose
 ```
@@ -39,7 +40,7 @@ You can use the following endpoints for interacting with the deployed applicatio
 
 `HOST:PORT/application/hello` - will return static response
 
-`HOST:PORT/application/hello` - will increment a counter in the deployed MongoDB database and change custom metrics
+`HOST:PORT/application/mongo` - will increment a counter in the deployed MongoDB database and change custom metrics
 
 `HOST:PORT/application/metrics` - shows metrics endpoint
 

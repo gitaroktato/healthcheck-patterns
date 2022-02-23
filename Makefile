@@ -6,7 +6,10 @@ K8S_BASEDIR = $(APPLICATION_BASEDIR)/src/main/kubernetes
 SCENARIO = mongo-test
 # Envoy endpoint is 192.168.99.100:10000
 # Traefik endpoint is 192.168.99.100
-BASE_URL = 192.168.99.100:10000
+BASE_URL = 127.0.0.1:10000
+DOCKER = docker
+KUBECTL = minikube kubectl --
+MINIKUBE = minikube
 
 TAURUS_COMMAND = bzt \
 	-o settings.artifacts-dir=e2e/logs \
@@ -16,6 +19,11 @@ TAURUS_COMMAND = bzt \
 .PHONY: e2e
 
 build: docker compose
+
+init-env:
+	wsl -u root service docker start; \
+	wsl minikube start; \
+	wsl minikube dashboard
 
 maven:
 	bash -c	"cd $(APPLICATION_BASEDIR) && ./mvnw package"
@@ -27,37 +35,38 @@ dev:
 	bash -c	"cd $(APPLICATION_BASEDIR) && ./mvnw quarkus:dev"
 
 docker: maven
-	docker build -f $(DOCKER_BASEDIR)/Dockerfile.jvm -t quarkus/application-jvm:$(DOCKER_IMAGE_VERSION) $(APPLICATION_BASEDIR)
+	$(DOCKER) build -f $(DOCKER_BASEDIR)/Dockerfile.jvm -t quarkus/application-jvm:$(DOCKER_IMAGE_VERSION) $(APPLICATION_BASEDIR);
 
 compose:
-	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml up -d --force --build; \
-	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml up -d --force
+	$(DOCKER) compose -f $(DOCKER_BASEDIR)/docker-compose.yml up -d --force-recreate --build;
 
 clean: maven-clean
-	docker-compose -f $(DOCKER_BASEDIR)/load-balancer.yml down --remove-orphans; \
-	docker-compose -f $(DOCKER_BASEDIR)/monitoring.yml down --remove-orphans; \
+	$(DOCKER) compose -f $(DOCKER_BASEDIR)/docker-compose.yml down --remove-orphans; \
 	rm -rf e2e/logs
 
 k8s-monitoring-deploy: 
-	kubectl apply -f $(K8S_BASEDIR)/monitoring-namespace.yaml \
+	$(KUBECTL) apply -f $(K8S_BASEDIR)/monitoring-namespace.yaml \
 		-f $(K8S_BASEDIR)/prometheus-config.yaml \
 		-f $(K8S_BASEDIR)/prometheus-deployment.yaml \
 		-f $(K8S_BASEDIR)/prometheus-service.yaml;
 	@echo "=== Prometheus is running at ==="
-	minikube service -n monitoring prometheus --url
+	$(MINIKUBE) service -n monitoring prometheus --url;
 
 k8s-deploy:
-	kubectl apply -f $(K8S_BASEDIR)/test-namespace.yaml \
+	$(KUBECTL) apply -f $(K8S_BASEDIR)/test-namespace.yaml \
 		-f $(K8S_BASEDIR)/application.yaml \
 		-f $(K8S_BASEDIR)/mongo.yaml -n test;
 	@echo "=== Application is running at ==="
-	minikube service -n test application --url
+	$(MINIKUBE) service -n test application --url;
+
+k8s-status:
+	$(KUBECTL) rollout status deployments/application -n test
 
 k8s-rollback:
-	kubectl rollout undo deployment.v1.apps/application -n test
+	$(KUBECTL) rollout undo deployments/application -n test;
 
 k8s-clean:
-	kubectl delete --all -n test po,rs,svc,deploy
+	$(KUBECTL) delete --all -n test po,rs,svc,deploy;
 
 e2e:
 	$(TAURUS_COMMAND)

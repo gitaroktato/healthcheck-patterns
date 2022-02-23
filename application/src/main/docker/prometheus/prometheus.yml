@@ -36,7 +36,7 @@ scrape_configs:
     static_configs:
       - targets:
           # On MacOS, replace localhost by host.docker.internal
-          - 192.168.99.100:8080
+          - traefik:8080
           
   - job_name: 'envoy'
 
@@ -48,4 +48,4 @@ scrape_configs:
     static_configs:
       - targets:
           # On MacOS, replace localhost by host.docker.internal
-          - 192.168.99.100:9901
+          - envoy:9901

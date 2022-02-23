@@ -18,7 +18,7 @@ datasources:
     orgId: 1
     # <string> url
     # On MacOS, replace localhost by host.docker.internal
-    url: http://localhost:9090
+    url: http://prometheus:9090
     # <string> database password, if used
     password:
     # <string> database user, if used

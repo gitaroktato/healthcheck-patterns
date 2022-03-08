@@ -21,7 +21,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "iteration": 1646302504326,
+  "iteration": 1646305182011,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -240,7 +240,7 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "percentunit"
         },
         "overrides": []
       },
@@ -316,207 +316,7 @@
           "refId": "D"
         }
       ],
-      "title": "Cluster Health Alert",
-      "type": "timeseries"
-    },
-    {
-      "dashboardFilter": "",
-      "dashboardTags": [],
-      "gridPos": {
-        "h": 8,
-        "w": 5,
-        "x": 0,
-        "y": 8
-      },
-      "id": 8,
-      "limit": 10,
-      "links": [],
-      "nameFilter": "",
-      "onlyAlertsOnDashboard": true,
-      "options": {
-        "alertName": "",
-        "dashboardAlerts": true,
-        "folder": {
-          "id": 4,
-          "title": "Alerts"
-        },
-        "maxItems": 20,
-        "showInstances": true,
-        "sortOrder": 1,
-        "stateFilter": {
-          "firing": true,
-          "inactive": true,
-          "pending": true
-        }
-      },
-      "show": "current",
-      "sortOrder": 1,
-      "stateFilter": [
-        "ok",
-        "no_data",
-        "paused",
-        "execution_error",
-        "alerting",
-        "pending"
-      ],
-      "title": "Alerts",
-      "transparent": true,
-      "type": "alertlist"
-    },
-    {
-      "dashboardFilter": "",
-      "dashboardTags": [],
-      "gridPos": {
-        "h": 8,
-        "w": 6,
-        "x": 5,
-        "y": 8
-      },
-      "id": 9,
-      "limit": 10,
-      "links": [],
-      "nameFilter": "",
-      "onlyAlertsOnDashboard": true,
-      "options": {
-        "alertName": "",
-        "dashboardAlerts": true,
-        "maxItems": 20,
-        "showInstances": true,
-        "sortOrder": 1,
-        "stateFilter": {
-          "firing": true,
-          "inactive": true,
-          "pending": true
-        }
-      },
-      "show": "changes",
-      "sortOrder": 1,
-      "stateFilter": [
-        "ok",
-        "no_data",
-        "paused",
-        "execution_error",
-        "alerting",
-        "pending"
-      ],
-      "title": "Alert History",
-      "transparent": true,
-      "type": "alertlist"
-    },
-    {
-      "alert": {
-        "conditions": [
-          {
-            "evaluator": {
-              "params": [
-                0.1
-              ],
-              "type": "gt"
-            },
-            "operator": {
-              "type": "and"
-            },
-            "query": {
-              "params": [
-                "A",
-                "15s",
-                "now"
-              ]
-            },
-            "reducer": {
-              "params": [],
-              "type": "max"
-            },
-            "type": "query"
-          }
-        ],
-        "executionErrorState": "alerting",
-        "for": "5s",
-        "frequency": "15s",
-        "handler": 1,
-        "name": "Envoy - Active Ejections Alert",
-        "noDataState": "no_data",
-        "notifications": []
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "smooth",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "line+area"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "transparent",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 0.1
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 13,
-        "x": 11,
-        "y": 8
-      },
-      "id": 13,
-      "links": [],
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "8.3.7",
-      "targets": [
-        {
-          "expr": "envoy_cluster_outlier_detection_ejections_active{envoy_cluster_name=\"application\"} / max_over_time(envoy_cluster_membership_total{envoy_cluster_name=\"application\"}[1d])",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "refId": "A"
-        }
-      ],
-      "title": "Outlier Detection - Active Ejections",
+      "title": "Cluster Health",
       "type": "timeseries"
     },
     {
@@ -610,7 +410,7 @@
         "h": 7,
         "w": 11,
         "x": 0,
-        "y": 16
+        "y": 8
       },
       "id": 6,
       "links": [],
@@ -627,15 +427,137 @@
       "pluginVersion": "8.3.7",
       "targets": [
         {
-          "expr": "sum(rate(envoy_cluster_upstream_rq_xx{envoy_response_code_class=\"5\"}[1m])) / sum(rate(envoy_cluster_upstream_rq_xx[1m]))",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "exemplar": true,
+          "expr": "sum(rate(envoy_cluster_upstream_rq_xx{envoy_response_code_class=\"5\"}[$interval])) / sum(rate(envoy_cluster_upstream_rq_xx[$interval]))",
           "format": "time_series",
           "instant": false,
+          "interval": "",
           "intervalFactor": 1,
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "title": "Failure Rate Alert",
+      "title": "Failure Rate",
+      "type": "timeseries"
+    },
+    {
+      "alert": {
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                0.1
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "A",
+                "15s",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "max"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "for": "5s",
+        "frequency": "15s",
+        "handler": 1,
+        "name": "Envoy - Active Ejections Alert",
+        "noDataState": "no_data",
+        "notifications": []
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line+area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.1
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 13,
+        "x": 11,
+        "y": 8
+      },
+      "id": 13,
+      "links": [],
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "pluginVersion": "8.3.7",
+      "targets": [
+        {
+          "expr": "envoy_cluster_outlier_detection_ejections_active{envoy_cluster_name=\"application\"} / max_over_time(envoy_cluster_membership_total{envoy_cluster_name=\"application\"}[1d])",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "refId": "A"
+        }
+      ],
+      "title": "Outlier Detection - Active Ejections",
       "type": "timeseries"
     },
     {
@@ -692,8 +614,8 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 13,
-        "x": 11,
+        "w": 24,
+        "x": 0,
         "y": 16
       },
       "id": 15,
@@ -721,7 +643,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": false,
   "schemaVersion": 34,
   "style": "dark",
   "tags": [],
@@ -778,8 +700,8 @@
     ]
   },
   "time": {
-    "from": "2022-03-03T09:13:39.464Z",
-    "to": "2022-03-03T09:22:34.565Z"
+    "from": "2022-03-03T10:30:18.572Z",
+    "to": "2022-03-03T10:46:46.684Z"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -809,6 +731,6 @@
   "timezone": "",
   "title": "Envoy - HTTP Response Stats",
   "uid": "-uqu1CrZk",
-  "version": 4,
+  "version": 1,
   "weekStart": ""
 }

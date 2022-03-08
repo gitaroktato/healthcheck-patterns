@@ -3,7 +3,7 @@ version: '3'
 services:
   traefik:
     # The official v2 Traefik docker image
-    image: traefik:v2.1
+    image: traefik:v2.6.1
     ports:
       # The HTTP port
       - "80:80"
@@ -18,7 +18,7 @@ services:
       - ./traefik/routes.toml:/etc/traefik/routes.toml:ro
   envoy:
     # The official v2 Traefik docker image
-    image: envoyproxy/envoy:v1.13.1
+    image: envoyproxy/envoy:v1.20.2
     ports:
       # The HTTP port
       - "10000:10000"
@@ -39,13 +39,13 @@ services:
     labels:
       killable: true
   mongo:
-    image: mongo:4.0
+    image: mongo:5.0.6
     ports:
       - "27017:27017"
     labels:
       killable: true
   prometheus:
-    image: prom/prometheus:v2.11.1
+    image: prom/prometheus:v2.33.4
     volumes:
       - ./prometheus/:/etc/prometheus/
     command:
@@ -53,7 +53,7 @@ services:
     ports:
       - 9090:9090
   grafana:
-    image: grafana/grafana:6.2.5
+    image: grafana/grafana:8.3.7
     volumes:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
     environment:

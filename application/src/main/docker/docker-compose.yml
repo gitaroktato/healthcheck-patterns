@@ -48,6 +48,7 @@ services:
     image: prom/prometheus:v2.33.4
     volumes:
       - ./prometheus/:/etc/prometheus/
+      - prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
@@ -62,3 +63,7 @@ services:
       - GF_INSTALL_PLUGINS=grafana-piechart-panel
     ports:
       - 3000:3000
+
+volumes:
+  prometheus-data:
+
